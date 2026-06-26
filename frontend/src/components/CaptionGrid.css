@@ -1,0 +1,151 @@
+.caption-empty {
+  padding: 40px;
+  color: var(--ink-soft);
+  font-style: italic;
+  text-align: center;
+}
+
+.caption-grid-wrap {
+  overflow-x: auto;
+}
+
+.caption-grid {
+  display: grid;
+  grid-template-columns: 60px repeat(3, 1fr);
+  gap: 12px;
+  min-width: 700px;
+  padding: 8px 0;
+}
+
+.caption-grid-header {
+  display: contents;
+}
+
+.grid-corner {
+  /* empty top-left corner */
+}
+
+.platform-label {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-align: center;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--line);
+}
+
+.caption-row {
+  display: contents;
+}
+
+.lang-label {
+  display: flex;
+  align-items: flex-start;
+  padding-top: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+}
+
+.caption-cell {
+  background: var(--paper-2);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 140px;
+  position: relative;
+}
+
+.caption-cell.stitched {
+  border: 2px dashed var(--line);
+}
+
+.caption-cell.edited {
+  border-color: var(--gold);
+}
+
+.cell-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+}
+
+.cell-title {
+  font-family: var(--font-body);
+  font-size: 13px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 5px 8px;
+  background: var(--paper);
+  color: var(--ink);
+  width: 100%;
+  outline: none;
+}
+
+.cell-title:focus {
+  border-color: var(--pink);
+}
+
+.cell-text {
+  font-family: var(--font-body);
+  font-size: 13px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 5px 8px;
+  background: var(--paper);
+  color: var(--ink);
+  width: 100%;
+  resize: vertical;
+  outline: none;
+  line-height: 1.5;
+}
+
+.cell-text:focus {
+  border-color: var(--pink);
+}
+
+.char-count {
+  font-size: 10px;
+  color: var(--yarn);
+  align-self: flex-end;
+}
+
+.hashtag-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.hashtag-chip {
+  font-size: 11px;
+  background: var(--line);
+  color: var(--ink-soft);
+  border-radius: 20px;
+  padding: 2px 8px;
+}
+
+.cell-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+.edited-mark {
+  font-size: 10px;
+  color: var(--gold-deep);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.saving-mark {
+  font-size: 10px;
+  color: var(--ink-soft);
+}
