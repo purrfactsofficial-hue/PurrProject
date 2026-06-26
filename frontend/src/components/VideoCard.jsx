@@ -1,106 +1,70 @@
-import { useState } from 'react'
 import StatusTag from './StatusTag.jsx'
 import './VideoCard.css'
 
-// 9 tint backgrounds for when thumbnail fails to load
-const FALLBACK_TINTS = [
-  '#F2E0E8', // rose
-  '#E8EDF8', // blue
-  '#E8F2EA', // sage
-  '#F8F0E0', // warm sand
-  '#F0E8F4', // lavender
-  '#E0EFF0', // teal
-  '#F4EDE0', // peach
-  '#E8F0E8', // mint
-  '#F2EBE0', // linen
+const GRADIENTS = [
+  'linear-gradient(135deg,#f3dbe2,#e9c9d3)',
+  'linear-gradient(135deg,#d9e7ec,#c5dbe4)',
+  'linear-gradient(135deg,#ece0c9,#e0d0b0)',
+  'linear-gradient(135deg,#f0d8c4,#e7c2a6)',
+  'linear-gradient(135deg,#eee2c0,#e3d09a)',
+  'linear-gradient(135deg,#e8e4dc,#d8d2c6)',
+  'linear-gradient(135deg,#dce6ec,#c9dbe6)',
+  'linear-gradient(135deg,#e6dcea,#d6c6e0)',
+  'linear-gradient(135deg,#f2ddc6,#ecca9f)',
 ]
 
-function formatDuration(secs) {
-  if (!secs && secs !== 0) return ''
+function fmtDuration(secs) {
+  if (!secs) return null
   const m = Math.floor(secs / 60)
   const s = Math.floor(secs % 60)
   return `${m}:${String(s).padStart(2, '0')}`
 }
 
-function formatSize(bytes) {
-  if (!bytes) return ''
+function fmtSize(bytes) {
+  if (!bytes) return null
   return `${(bytes / 1_000_000).toFixed(1)} MB`
 }
 
 export default function VideoCard({ episode }) {
-  const {
-    id,
-    episode_num,
-    name,
-    thumbnail_path,
-    duration_secs,
-    size_bytes,
-    languages = [],
-    status,
-  } = episode
-
-  const [imgError, setImgError] = useState(false)
-  const tint = FALLBACK_TINTS[(id ?? 0) % FALLBACK_TINTS.length]
+  const { episode_num, name, thumbnail_path, duration_secs, size_bytes, languages, status } = episode
+  const gradient = GRADIENTS[(episode_num - 1) % GRADIENTS.length]
+  const duration = fmtDuration(duration_secs)
+  const size = fmtSize(size_bytes)
 
   return (
-    <div className="video-card">
-      <div className="card-thumb-wrap">
-        {thumbnail_path && !imgError ? (
+    <article className="card">
+      <div className="thumb">
+        {thumbnail_path ? (
           <img
-            className="card-thumb"
-            src={thumbnail_path}
-            alt={`Episode ${episode_num} – ${name}`}
-            onError={() => setImgError(true)}
+            src={`/api${thumbnail_path}`}
+            alt={name}
+            onError={(e) => { e.currentTarget.style.display = 'none' }}
           />
-        ) : (
-          <div
-            className="card-thumb-fallback"
-            style={{ background: tint }}
-          >
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-              <rect x="2" y="4" width="20" height="16" rx="3" stroke="var(--ink)" strokeWidth="1.5" />
-              <path d="M9 9l6 3-6 3V9z" fill="var(--ink)" />
-            </svg>
-          </div>
-        )}
-
-        {episode_num != null && (
-          <span className="card-badge card-badge--ep">
-            Ep.&nbsp;{episode_num}
-          </span>
-        )}
-
-        {duration_secs != null && (
-          <span className="card-badge card-badge--dur">
-            {formatDuration(duration_secs)}
-          </span>
-        )}
+        ) : null}
+        <div
+          className="thumb-fallback"
+          style={{ background: gradient }}
+          aria-hidden="true"
+        />
+        <span className="ep-badge">Ep {episode_num}</span>
+        {duration && <span className="dur">{duration}</span>}
       </div>
 
       <div className="card-body">
         <div className="card-name">{name}</div>
-
-        {size_bytes != null && (
-          <div className="card-meta">{formatSize(size_bytes)} · MP4</div>
-        )}
-
-        {languages.length > 0 && (
-          <div className="card-langs">
-            {languages.map((lang) => (
-              <span key={lang} className="lang-chip">
-                {lang.toUpperCase()}
-              </span>
-            ))}
-          </div>
-        )}
-
-        <div className="card-footer">
+        <div className="card-sub">
+          Episode {episode_num}{size ? ` · ${size}` : ''} · mp4
+        </div>
+        <div className="langs">
+          {languages.map((lang) => (
+            <span key={lang} className="lang-chip">{lang.toUpperCase()}</span>
+          ))}
+        </div>
+        <div className="card-status">
           <StatusTag status={status} />
-          <button className="card-open-btn" type="button">
-            Open →
-          </button>
+          <button className="open-btn" tabIndex={-1} aria-hidden="true">Open →</button>
         </div>
       </div>
-    </div>
+    </article>
   )
 }

@@ -1,99 +1,88 @@
-.video-card {
+.card {
   background: var(--paper-2);
   border: 2px dashed var(--line);
   border-radius: var(--radius);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-  cursor: default;
+  transition: transform 0.14s, box-shadow 0.14s, border-color 0.14s;
 }
 
-.video-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(42, 38, 34, 0.12);
+.card:hover {
+  transform: translateY(-3px);
   border-color: var(--pink);
-  border-style: dashed;
+  box-shadow: 0 10px 22px -12px rgba(120,90,60,.4);
 }
 
-/* ── Thumbnail area ── */
-.card-thumb-wrap {
-  position: relative;
+.thumb {
   aspect-ratio: 16 / 10;
+  position: relative;
   overflow: hidden;
-  flex-shrink: 0;
+  border-bottom: 2px dashed var(--line);
 }
 
-.card-thumb {
+.thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-.card-thumb-fallback {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.card-thumb-fallback svg {
-  opacity: 0.35;
-}
-
-/* ── Overlaid badges ── */
-.card-badge {
+.thumb-fallback {
   position: absolute;
+  inset: 0;
+}
+
+.ep-badge {
+  position: absolute;
+  left: 9px;
+  top: 9px;
+  background: rgba(251,248,242,.92);
+  color: var(--ink-soft);
   font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.04em;
-  line-height: 1;
-  padding: 4px 8px;
+  padding: 3px 8px;
   border-radius: 7px;
-  backdrop-filter: blur(4px);
+  text-transform: uppercase;
 }
 
-.card-badge--ep {
-  top: 8px;
-  left: 8px;
-  background: rgba(42, 38, 34, 0.72);
+.dur {
+  position: absolute;
+  right: 9px;
+  bottom: 9px;
+  background: rgba(42,38,34,.86);
   color: #fff;
-}
-
-.card-badge--dur {
-  bottom: 8px;
-  right: 8px;
-  background: rgba(42, 38, 34, 0.72);
-  color: #fff;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 7px;
   font-variant-numeric: tabular-nums;
 }
 
-/* ── Card body ── */
 .card-body {
   padding: 13px 14px 15px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   flex: 1;
 }
 
 .card-name {
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: 18.5px;
   font-weight: 600;
-  color: var(--ink);
-  line-height: 1.2;
   letter-spacing: -0.01em;
+  line-height: 1.1;
 }
 
-.card-meta {
+.card-sub {
   font-size: 12px;
-  color: var(--ink-soft);
+  color: var(--yarn);
+  font-weight: 500;
 }
 
-.card-langs {
+.langs {
   display: flex;
   gap: 5px;
   flex-wrap: wrap;
@@ -101,43 +90,49 @@
 
 .lang-chip {
   font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  padding: 2px 7px;
-  border-radius: 4px;
-  background: var(--paper);
-  border: 1.5px dashed var(--line);
+  font-weight: 800;
+  letter-spacing: 0.05em;
   color: var(--ink-soft);
-  line-height: 1.4;
+  background: #efe8db;
+  border-radius: 6px;
+  padding: 3px 6px;
+  text-transform: uppercase;
 }
 
-.card-footer {
+.card-status {
+  margin-top: auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: auto;
-  padding-top: 4px;
+  gap: 8px;
+  padding-top: 11px;
+  border-top: 2px dashed var(--line);
 }
 
-.card-open-btn {
+.open-btn {
   font-family: var(--font-body);
-  font-size: 12.5px;
   font-weight: 700;
-  color: var(--pink-deep);
+  font-size: 12.5px;
+  color: var(--ink);
   background: none;
   border: none;
-  cursor: pointer;
-  padding: 0;
-  letter-spacing: 0.01em;
-  transition: color 0.12s;
+  cursor: default;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.55;
+  transition: opacity 0.12s, gap 0.12s;
 }
 
-.card-open-btn:hover {
-  color: var(--ink);
+.card:hover .open-btn {
+  opacity: 1;
+  gap: 7px;
+  color: var(--pink-deep);
 }
 
-.card-open-btn:focus-visible {
+.open-btn:focus-visible {
   outline: 2px solid var(--pink);
-  outline-offset: 2px;
-  border-radius: 3px;
+  outline-offset: 3px;
+  border-radius: 4px;
+  opacity: 1;
 }

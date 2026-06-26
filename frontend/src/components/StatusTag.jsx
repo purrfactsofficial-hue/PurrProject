@@ -1,20 +1,17 @@
 import './StatusTag.css'
 
-const LABELS = {
-  new:       'New',
-  scheduled: 'Scheduled',
-  posted:    'Posted',
-  published: 'Posted',
+const STATUS_CONFIG = {
+  new:       { label: 'New render',     cls: 'tag-new' },
+  draft:     { label: 'Draft',          cls: 'tag-draft' },
+  ready:     { label: 'Captions ready', cls: 'tag-ready' },
+  scheduled: { label: 'Scheduled',      cls: 'tag-sched' },
+  published: { label: 'Posted',         cls: 'tag-sched' },
+  failed:    { label: 'Failed',         cls: 'tag-draft' },
 }
 
 export default function StatusTag({ status }) {
-  const key = status || 'default'
-  const cls = ['new', 'scheduled', 'posted', 'published'].includes(key) ? key : 'default'
-  const label = LABELS[key] ?? (status ? status.charAt(0).toUpperCase() + status.slice(1) : 'Unknown')
-
+  const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.draft
   return (
-    <span className={`status-tag status-tag--${cls}`}>
-      {label}
-    </span>
+    <span className={`status-tag ${cfg.cls}`}>● {cfg.label}</span>
   )
 }
