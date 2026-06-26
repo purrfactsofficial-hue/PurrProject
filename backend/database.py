@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Generator
 
 from sqlalchemy import Column, DateTime, Float, Integer, Text, create_engine
@@ -26,7 +26,7 @@ class Video(Base):
     thumbnail_path = Column(Text)
     languages = Column(Text, default="[]")   # stored as JSON string
     status = Column(Text, default="new")
-    scanned_at = Column(DateTime, default=datetime.utcnow)
+    scanned_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 
 engine = create_engine(

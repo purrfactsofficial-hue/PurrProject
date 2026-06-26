@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from unittest.mock import patch
 
 import pytest
@@ -99,7 +99,7 @@ def _seed(eng, count: int, status: str = "new") -> None:
             s.add(Video(
                 episode_num=i, name=f"Ep{i}", slug=f"ep-{i}",
                 folder_path=f"/p/{i}", languages='["en"]',
-                status=status, scanned_at=datetime.utcnow(),
+                status=status, scanned_at=datetime.now(timezone.utc),
             ))
         s.commit()
 
@@ -130,7 +130,7 @@ def test_list_filter_by_status(client):
             s.add(Video(
                 episode_num=i, name=f"Ep{i}", slug=f"ep-{i}",
                 folder_path=f"/p/{i}", languages='["en"]',
-                status="published", scanned_at=datetime.utcnow(),
+                status="published", scanned_at=datetime.now(timezone.utc),
             ))
         s.commit()
 

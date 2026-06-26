@@ -11,8 +11,6 @@ const FILTERS = [
   { label: 'Posted',    value: 'published' },
 ]
 
-const REPO_PATH = 'C:\\Users\\yborodulina\\Downloads\\Purr'
-
 export default function Library() {
   const [episodes,     setEpisodes]     = useState([])
   const [total,        setTotal]        = useState(0)
@@ -83,7 +81,7 @@ export default function Library() {
       </div>
 
       <div className="meta-row">
-        <span className="path-badge">{REPO_PATH}</span>
+        <span className="path-badge">Episode folder (see backend/.env)</span>
         {!error && !isBusy && total > 0 && (
           <span>
             <span className="dot-ok" />

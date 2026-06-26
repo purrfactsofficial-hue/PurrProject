@@ -1,6 +1,6 @@
 import json
 import math
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, Query
@@ -59,7 +59,7 @@ def _to_out(v: Video) -> EpisodeOut:
 @router.get("/scan", response_model=PagedResponse)
 def scan(db: Annotated[Session, Depends(get_db)]) -> PagedResponse:
     episodes = scan_episodes(settings.video_repo_path, settings.thumbs_dir)
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     for ep in episodes:
         existing = db.query(Video).filter(Video.slug == ep["slug"]).first()
