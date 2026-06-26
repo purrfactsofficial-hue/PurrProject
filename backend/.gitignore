@@ -1,0 +1,5 @@
+.env
+purr.db
+venv/
+__pycache__/
+*.pyc
