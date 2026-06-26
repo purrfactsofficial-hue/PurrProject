@@ -1,0 +1,35 @@
+.status-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 20px;
+  line-height: 1.4;
+}
+
+.status-tag--new {
+  background: rgba(194, 154, 38, 0.15);
+  color: var(--gold-deep);
+  border: 1.5px solid rgba(194, 154, 38, 0.35);
+}
+
+.status-tag--scheduled {
+  background: rgba(91, 130, 200, 0.13);
+  color: #3a67b5;
+  border: 1.5px solid rgba(91, 130, 200, 0.3);
+}
+
+.status-tag--posted,
+.status-tag--published {
+  background: rgba(94, 154, 120, 0.15);
+  color: var(--ok);
+  border: 1.5px solid rgba(94, 154, 120, 0.35);
+}
+
+.status-tag--default {
+  background: rgba(111, 103, 94, 0.12);
+  color: var(--ink-soft);
+  border: 1.5px solid rgba(111, 103, 94, 0.25);
+}
