@@ -120,18 +120,13 @@ export default function Library() {
           <div className="state-box">
             <h2>Can&apos;t reach the backend</h2>
             <p>
-              Start it with:<br />
-              <code>cd backend &amp;&amp; venv\Scripts\activate &amp;&amp; uvicorn main:app --reload</code>
+              <code>cd backend &amp;&amp; uvicorn main:app --reload</code>
             </p>
           </div>
         ) : episodes.length === 0 ? (
           <div className="state-box">
             <h2>No episodes found</h2>
-            <p>
-              No rendered episodes found in:<br />
-              <code>{REPO_PATH}</code><br /><br />
-              Check that <code>VIDEO_REPO_PATH</code> is set correctly in <code>backend/.env</code>
-            </p>
+            <p>No episodes found. Make sure your video folder is set in <code>backend/.env</code> and click <strong>Scan folder</strong> to try again.</p>
           </div>
         ) : (
           episodes.map((ep) => <VideoCard key={ep.id} episode={ep} />)

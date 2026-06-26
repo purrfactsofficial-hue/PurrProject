@@ -100,7 +100,7 @@
   transition: background 0.12s, color 0.12s;
 }
 
-.chip:hover { background: #efe8db; }
+.chip:hover { background: var(--line); }
 .chip.on    { color: #fff; background: var(--ink); border-color: var(--ink); }
 
 .grid {

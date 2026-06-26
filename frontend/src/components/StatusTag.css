@@ -17,7 +17,7 @@
 
 .status-tag--scheduled {
   background: rgba(91, 130, 200, 0.13);
-  color: #3a67b5;
+  color: var(--blue);
   border: 1.5px solid rgba(91, 130, 200, 0.3);
 }
 
