@@ -24,6 +24,7 @@ function CaptionCell({ cell, videoId, language, platform }) {
   const [title, setTitle] = useState(cell?.title ?? '')
   const [text, setText] = useState(cell?.caption ?? '')
   const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState(null)
   const [isManual, setIsManual] = useState(cell?.source === 'manual')
   const dirty = useRef(false)
 
@@ -37,6 +38,7 @@ function CaptionCell({ cell, videoId, language, platform }) {
   const handleSave = async () => {
     if (!dirty.current || !cell) return
     setSaving(true)
+    setSaveError(null)
     try {
       await saveCaption({
         videoId,
@@ -47,9 +49,11 @@ function CaptionCell({ cell, videoId, language, platform }) {
         hashtags: cell.hashtags,
       })
       setIsManual(true)
+      dirty.current = false
+    } catch {
+      setSaveError('save failed')
     } finally {
       setSaving(false)
-      dirty.current = false
     }
   }
 
@@ -91,6 +95,7 @@ function CaptionCell({ cell, videoId, language, platform }) {
       <div className="cell-footer">
         {isManual && <span className="edited-mark">edited</span>}
         {saving && <span className="saving-mark">saving…</span>}
+        {saveError && <span className="saving-mark" style={{ color: '#b04040' }}>{saveError}</span>}
       </div>
     </div>
   )
