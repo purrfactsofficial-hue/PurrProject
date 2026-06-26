@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PurrFacts — Library (Atelier)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,9..144&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F2EA; --paper-2:#FBF8F2; --ink:#2A2622; --ink-soft:#6F675E;
+    --yarn:#9C9388; --pink:#DE839C; --pink-deep:#C35D78; --gold:#C29A26; --gold-deep:#A07E16;
+    --line:#D9CFC0; --ok:#5E9A78;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Hanken Grotesk",system-ui,sans-serif; background:var(--paper); color:var(--ink);
+    -webkit-font-smoothing:antialiased; line-height:1.4;
+  }
+  /* paper grain */
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;mix-blend-mode:multiply;
+    background-image:radial-gradient(circle at 1px 1px, rgba(160,140,110,.06) 1px, transparent 0);background-size:5px 5px;z-index:0}
+  .app{display:grid;grid-template-columns:236px 1fr;min-height:100vh;position:relative;z-index:1}
+
+  /* ---------- sidebar ---------- */
+  .side{padding:26px 18px;border-right:2px dashed var(--line);position:sticky;top:0;height:100vh}
+  .brand{display:flex;align-items:center;gap:11px;margin-bottom:34px;padding-left:6px}
+  .bell{width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#F2D873,var(--gold));
+    box-shadow:inset 0 -2px 4px rgba(120,90,0,.35);position:relative;flex:none}
+  .bell::after{content:"";position:absolute;left:50%;top:62%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:#7a5d05}
+  .brand h1{font-family:"Fraunces",serif;font-weight:600;font-size:20px;letter-spacing:-.01em;line-height:1}
+  .brand small{display:block;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--yarn);margin-top:3px;font-weight:600}
+  nav a{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;color:var(--ink-soft);
+    text-decoration:none;font-weight:600;font-size:14.5px;margin-bottom:3px;position:relative}
+  nav a .ic{width:17px;text-align:center;opacity:.8}
+  nav a:hover{background:#efe8db;color:var(--ink)}
+  nav a.active{color:var(--ink);background:#efe8db}
+  nav a.active::after{content:"";position:absolute;left:12px;right:12px;bottom:5px;height:0;
+    border-bottom:2.5px dashed var(--pink)}
+  .side-foot{position:absolute;bottom:24px;left:18px;right:18px;font-size:11.5px;color:var(--yarn);
+    border-top:2px dashed var(--line);padding-top:14px}
+  .side-foot b{color:var(--ink-soft);font-weight:600}
+
+  /* ---------- main ---------- */
+  .main{padding:30px 38px 60px}
+  .top{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:6px}
+  .eyebrow{font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--pink-deep);font-weight:700}
+  .title{font-family:"Fraunces",serif;font-size:40px;font-weight:600;letter-spacing:-.02em;line-height:1.02;margin-top:4px}
+  .title em{font-style:italic;color:var(--gold-deep)}
+  .scan{display:inline-flex;align-items:center;gap:9px;background:var(--gold);color:#fff;border:none;cursor:pointer;
+    font-family:inherit;font-weight:700;font-size:14px;padding:12px 18px;border-radius:11px;
+    box-shadow:0 2px 0 var(--gold-deep);transition:transform .12s, box-shadow .12s}
+  .scan:hover{transform:translateY(-1px);box-shadow:0 3px 0 var(--gold-deep)}
+  .scan:active{transform:translateY(1px);box-shadow:0 1px 0 var(--gold-deep)}
+  .scan:focus-visible{outline:3px solid var(--pink);outline-offset:2px}
+
+  .meta-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:18px 0 22px;font-size:13px;color:var(--ink-soft)}
+  .path{font-family:"Fraunces",serif;font-size:13px;background:var(--paper-2);border:2px dashed var(--line);
+    padding:6px 11px;border-radius:9px;color:var(--ink)}
+  .dot-ok{width:8px;height:8px;border-radius:50%;background:var(--ok);display:inline-block;box-shadow:0 0 0 3px rgba(94,154,120,.18)}
+  .filters{margin-left:auto;display:flex;gap:7px}
+  .chip{font-size:12.5px;font-weight:600;color:var(--ink-soft);background:var(--paper-2);border:2px dashed var(--line);
+    padding:6px 12px;border-radius:20px;cursor:pointer}
+  .chip.on{color:#fff;background:var(--ink);border-color:var(--ink)}
+
+  /* ---------- grid ---------- */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:20px}
+  .card{background:var(--paper-2);border:2px dashed var(--line);border-radius:var(--radius);overflow:hidden;
+    display:flex;flex-direction:column;transition:transform .14s, box-shadow .14s, border-color .14s}
+  .card:hover{transform:translateY(-3px);border-color:var(--pink);box-shadow:0 10px 22px -12px rgba(120,90,60,.4)}
+  .thumb{aspect-ratio:16/10;position:relative;display:grid;place-items:center;font-size:54px;
+    border-bottom:2px dashed var(--line)}
+  .thumb .dur{position:absolute;right:9px;bottom:9px;background:rgba(42,38,34,.86);color:#fff;
+    font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:7px;font-variant-numeric:tabular-nums}
+  .thumb .ep{position:absolute;left:9px;top:9px;background:rgba(251,248,242,.92);color:var(--ink-soft);
+    font-size:10.5px;font-weight:700;letter-spacing:.04em;padding:3px 8px;border-radius:7px;text-transform:uppercase}
+  .body{padding:13px 14px 15px;display:flex;flex-direction:column;gap:10px;flex:1}
+  .name{font-family:"Fraunces",serif;font-size:18.5px;font-weight:600;letter-spacing:-.01em;line-height:1.1}
+  .sub{font-size:12px;color:var(--yarn);font-weight:500}
+  .langs{display:flex;gap:5px;align-items:center}
+  .lang{font-size:10px;font-weight:800;letter-spacing:.05em;color:var(--ink-soft);background:#efe8db;
+    border-radius:6px;padding:3px 6px}
+  .status{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding-top:11px;border-top:2px dashed var(--line)}
+  .tag{font-size:11.5px;font-weight:700;padding:4px 9px;border-radius:7px;display:inline-flex;align-items:center;gap:6px}
+  .tag.sched{color:var(--ok);background:rgba(94,154,120,.13)}
+  .tag.ready{color:var(--gold-deep);background:rgba(194,154,38,.15)}
+  .tag.draft{color:var(--ink-soft);background:#ece4d7}
+  .tag.new{color:var(--pink-deep);background:rgba(222,131,156,.16)}
+  .open{font-family:inherit;font-weight:700;font-size:12.5px;color:var(--ink);background:none;border:none;cursor:pointer;
+    display:inline-flex;align-items:center;gap:4px;opacity:.55;transition:opacity .12s,gap .12s}
+  .card:hover .open{opacity:1;gap:7px;color:var(--pink-deep)}
+  .open:focus-visible{outline:2px solid var(--pink);outline-offset:3px;border-radius:4px;opacity:1}
+
+  /* thumbnail tints per topic */
+  .t-cat{background:linear-gradient(135deg,#f3dbe2,#e9c9d3)}
+  .t-octo{background:linear-gradient(135deg,#d9e7ec,#c5dbe4)}
+  .t-paris{background:linear-gradient(135deg,#ece0c9,#e0d0b0)}
+  .t-venus{background:linear-gradient(135deg,#f0d8c4,#e7c2a6)}
+  .t-egypt{background:linear-gradient(135deg,#eee2c0,#e3d09a)}
+  .t-bones{background:linear-gradient(135deg,#e8e4dc,#d8d2c6)}
+  .t-fuji{background:linear-gradient(135deg,#dce6ec,#c9dbe6)}
+  .t-fly{background:linear-gradient(135deg,#e6dcea,#d6c6e0)}
+  .t-pizza{background:linear-gradient(135deg,#f2ddc6,#ecca9f)}
+
+  @media(max-width:780px){
+    .app{grid-template-columns:1fr}
+    .side{position:static;height:auto;border-right:none;border-bottom:2px dashed var(--line);display:flex;align-items:center;gap:20px;padding:16px 20px}
+    .side nav{display:flex;gap:2px;overflow:auto}
+    .side nav a{margin:0;white-space:nowrap}
+    .brand{margin-bottom:0}
+    .side-foot{display:none}
+    .main{padding:22px 18px 50px}
+    .title{font-size:30px}
+  }
+  @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <div class="bell" aria-hidden="true"></div>
+      <div><h1>PurrFacts</h1><small>Studio</small></div>
+    </div>
+    <nav>
+      <a href="#" class="active"><span class="ic">▦</span> Library</a>
+      <a href="#"><span class="ic">✎</span> Episode</a>
+      <a href="#"><span class="ic">◴</span> Queue</a>
+      <a href="#"><span class="ic">◷</span> Dashboard</a>
+      <a href="#"><span class="ic">⚙</span> Settings</a>
+    </nav>
+    <div class="side-foot">Signed in as<br><b>borodulina.iana</b></div>
+  </aside>
+
+  <main class="main">
+    <div class="top">
+      <div>
+        <div class="eyebrow">Your worktable</div>
+        <div class="title">Library <em>·</em> rendered clips</div>
+      </div>
+      <button class="scan">↻ Scan folder</button>
+    </div>
+
+    <div class="meta-row">
+      <span class="path">C:\Users\yborodulina\Downloads\Purr</span>
+      <span><span class="dot-ok"></span> &nbsp;Connected · 9 clips · scanned 2 min ago</span>
+      <div class="filters">
+        <span class="chip on">All</span>
+        <span class="chip">Scheduled</span>
+        <span class="chip">Drafts</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- card -->
+      <article class="card">
+        <div class="thumb t-cat"><span>🐱</span><span class="ep">Ep 0</span><span class="dur">0:42</span></div>
+        <div class="body">
+          <div class="name">Cat Ears Intro</div>
+          <div class="sub">Episode 0 · 18.4 MB · mp4</div>
+          <div class="langs"><span class="lang">EN</span><span class="lang">UK</span><span class="lang">ZH</span><span class="lang">FR</span></div>
+          <div class="status"><span class="tag sched">● Scheduled</span><button class="open">Open →</button></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="thumb t-octo"><span>🐙</span><span class="ep">Ep 1</span><span class="dur">0:51</span></div>
+        <div class="body">
+          <div class="name">Octopus</div>
+          <div class="sub">Episode 1 · 22.1 MB · mp4</div>
+          <div class="langs"><span class="lang">EN</span><span class="lang">UK</span><span class="lang">ZH</span><span class="lang">FR</span></div>
+          <div class="status"><span class="tag ready">● Captions ready</span><button class="open">Open →</button></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="thumb t-paris"><span>🗼</span><span class="ep">Ep 2</span><span class="dur">0:48</span></div>
+        <div class="body">
+          <div class="name">Paris · Eiffel Tower</div>
+          <div class="sub">Episode 2 · 20.7 MB · mp4</div>
+          <div class="langs"><span class="lang">EN</span><span class="lang">UK</span><span class="lang">ZH</span><span class="lang">FR</span></div>
+          <div class="status"><span class="tag sched">● Scheduled</span><button class="open">Open →</button></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="thumb t-venus"><span>🪐</span><span class="ep">Ep 3</span><span class="dur">0:49</span></div>
+        <div class="body">
+          <div class="name">Venus</div>
+          <div class="sub">Episode 3 · 21.3 MB · mp4</div>
+          <div class="langs"><span class="lang">EN</span><span class="lang">UK</span><span class="lang">ZH</span><span class="lang">FR</span></div>
+          <div class="status"><span class="tag ready">● Captions ready</span><button class="open">Open →</button></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="thumb t-egypt"><span>🔺</span><span class="ep">Ep 4</span><span class="dur">0:53</span></div>
+        <div class="body">
+          <div class="name">Egypt · Pyramids</div>
+          <div class="sub">Episode 4 · 23.0 MB · mp4</div>
+          <div class="langs"><span class="lang">EN</span><span class="lang">UK</span><span class="lang">ZH</span><span class="lang">FR</span></div>
+          <div class="status"><span class="tag draft">● Draft</span><button class="open">Open →</button></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="thumb t-bones"><span>🦴</span><span class="ep">Ep 5</span><span class="dur">0:47</span></div>
+        <div class="body">
+          <div class="name">Bones</div>
+          <div class="sub">Episode 5 · 19.8 MB · mp4</div>
+          <div class="langs"><span class="lang">EN</span><span class="lang">UK</span><span class="lang">ZH</span><span class="lang">FR</span></div>
+          <div class="status"><span class="tag draft">● Draft</span><button class="open">Open →</button></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="thumb t-fuji"><span>🗻</span><span class="ep">Ep 6</span><span class="dur">0:50</span></div>
+        <div class="body">
+          <div class="name">Japan · Mount Fuji</div>
+          <div class="sub">Episode 6 · 21.9 MB · mp4</div>
+          <div class="langs"><span class="lang">EN</span><span class="lang">UK</span><span class="lang">ZH</span><span class="lang">FR</span></div>
+          <div class="status"><span class="tag ready">● Captions ready</span><button class="open">Open →</button></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="thumb t-fly"><span>🦋</span><span class="ep">Ep 7</span><span class="dur">0:46</span></div>
+        <div class="body">
+          <div class="name">Butterflies</div>
+          <div class="sub">Episode 7 · 19.1 MB · mp4</div>
+          <div class="langs"><span class="lang">EN</span><span class="lang">UK</span><span class="lang">ZH</span><span class="lang">FR</span></div>
+          <div class="status"><span class="tag draft">● Draft</span><button class="open">Open →</button></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="thumb t-pizza"><span>🍕</span><span class="ep">Ep 8</span><span class="dur">0:44</span></div>
+        <div class="body">
+          <div class="name">Pizza</div>
+          <div class="sub">Episode 8 · 17.6 MB · mp4</div>
+          <div class="langs"><span class="lang">EN</span><span class="lang">UK</span><span class="lang">ZH</span><span class="lang">FR</span></div>
+          <div class="status"><span class="tag new">● New render</span><button class="open">Open →</button></div>
+        </div>
+      </article>
+    </div>
+  </main>
+</div>
+</body>
+</html>
