@@ -14,7 +14,7 @@ export default function App() {
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Library />} />
-          <Route path="/episode" element={<Episode />} />
+          <Route path="/episode/:id" element={<Episode />} />
           <Route path="/queue" element={<Queue />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/settings" element={<Settings />} />

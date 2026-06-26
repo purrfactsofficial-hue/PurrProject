@@ -1,9 +1,11 @@
 import json
 import math
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Annotated, Optional
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -126,3 +128,30 @@ def list_videos(
         pages=pages,
         per_page=per_page,
     )
+
+
+@router.get("/{video_id}", response_model=EpisodeOut)
+def get_video(
+    video_id: int,
+    db: Annotated[Session, Depends(get_db)],
+) -> EpisodeOut:
+    v = db.query(Video).filter(Video.id == video_id).first()
+    if v is None:
+        raise HTTPException(404, detail="Video not found")
+    return _to_out(v)
+
+
+@router.get("/{video_id}/stream")
+def stream_video(
+    video_id: int,
+    db: Annotated[Session, Depends(get_db)],
+):
+    v = db.query(Video).filter(Video.id == video_id).first()
+    if v is None:
+        raise HTTPException(404, detail="Video not found")
+    if not v.primary_file:
+        raise HTTPException(404, detail="No video file for this episode")
+    path = Path(v.primary_file)
+    if not path.exists():
+        raise HTTPException(404, detail="Video file not found on disk")
+    return FileResponse(path, media_type="video/mp4")

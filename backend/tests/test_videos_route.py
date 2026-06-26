@@ -144,3 +144,23 @@ def test_list_filter_by_status(client):
 def test_list_invalid_page_returns_422(client):
     c, _ = client
     assert c.get("/videos/list?page=0").status_code == 422
+
+
+def test_get_video_by_id(client):
+    c, eng = client
+    with Session(eng) as s:
+        s.add(Video(
+            episode_num=9, name="Pizza", slug="episode-9-pizza",
+            folder_path="/fake", languages='["en"]',
+            status="draft", scanned_at=datetime.now(timezone.utc),
+        ))
+        s.commit()
+        vid_id = s.query(Video).first().id
+    resp = c.get(f"/videos/{vid_id}")
+    assert resp.status_code == 200
+    assert resp.json()["name"] == "Pizza"
+
+
+def test_get_video_not_found(client):
+    c, _ = client
+    assert c.get("/videos/9999").status_code == 404

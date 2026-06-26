@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { listVideos, scanVideos } from '../api.js'
 import Pagination from '../components/Pagination.jsx'
 import VideoCard from '../components/VideoCard.jsx'
@@ -127,7 +128,11 @@ export default function Library() {
             <p>No episodes found. Make sure your video folder is set in <code>backend/.env</code> and click <strong>Scan folder</strong> to try again.</p>
           </div>
         ) : (
-          episodes.map((ep) => <VideoCard key={ep.id} episode={ep} />)
+          episodes.map((ep) => (
+            <Link key={ep.id} to={`/episode/${ep.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+              <VideoCard episode={ep} />
+            </Link>
+          ))
         )}
       </div>
 
