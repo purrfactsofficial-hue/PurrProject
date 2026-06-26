@@ -36,7 +36,7 @@ function CaptionCell({ cell, videoId, language, platform }) {
   }, [cell])
 
   const handleSave = async () => {
-    if (!dirty.current || !cell) return
+    if (!dirty.current || !cell || saving) return
     setSaving(true)
     setSaveError(null)
     try {
@@ -90,7 +90,7 @@ function CaptionCell({ cell, videoId, language, platform }) {
       />
       <span className="char-count">{text.length}/{textLimit}</span>
       <div className="hashtag-chips">
-        {cell.hashtags.map((h) => <span key={h} className="hashtag-chip">{h}</span>)}
+        {cell.hashtags.map((h, i) => <span key={`${h}-${i}`} className="hashtag-chip">{h}</span>)}
       </div>
       <div className="cell-footer">
         {isManual && <span className="edited-mark">edited</span>}

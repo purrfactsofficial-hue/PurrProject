@@ -6,6 +6,7 @@ import './Episode.css'
 
 export default function Episode() {
   const { id } = useParams()
+  const numericId = parseInt(id, 10)
   const navigate = useNavigate()
   const [episode, setEpisode] = useState(null)
   const [captions, setCaptions] = useState([])
@@ -14,23 +15,29 @@ export default function Episode() {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    getVideo(id)
+    if (isNaN(numericId)) return
+    getVideo(numericId)
       .then(setEpisode)
       .catch((err) => setError(err.message))
-    getCaptions(id)
+    getCaptions(numericId)
       .then(setCaptions)
       .catch(() => setCaptions([]))
-  }, [id])
+  }, [numericId])
 
   const handleImport = async () => {
     setImporting(true)
     setImportResult(null)
     try {
-      const result = await importCaptions(id)
+      const result = await importCaptions(numericId)
       setImportResult(result)
-      if (!result.errors?.length) {
-        const updated = await getCaptions(id)
+      if (!result.errors?.length && !result.detail) {
+        const updated = await getCaptions(numericId)
         setCaptions(updated)
+      } else if (result.detail) {
+        const msg = typeof result.detail === 'string'
+          ? result.detail
+          : 'Import failed: validation error'
+        setError(msg)
       }
     } catch (err) {
       setError(err.message)
@@ -39,6 +46,7 @@ export default function Episode() {
     }
   }
 
+  if (isNaN(numericId)) return <p className="ep-error">Invalid episode ID.</p>
   if (error) return <div className="ep-error">{error}</div>
   if (!episode) return <div className="ep-loading">Loading…</div>
 
@@ -58,7 +66,7 @@ export default function Episode() {
       {episode.primary_file && (
         <video
           className="ep-video"
-          src={`/api/videos/${id}/stream`}
+          src={`/api/videos/${numericId}/stream`}
           controls
           preload="metadata"
         />
@@ -80,7 +88,7 @@ export default function Episode() {
       )}
 
       <h2 className="ep-section-title">Publishing descriptions</h2>
-      <CaptionGrid videoId={parseInt(id, 10)} captions={captions} />
+      <CaptionGrid videoId={numericId} captions={captions} />
 
       <div className="ep-footer">
         <button className="save-btn" onClick={() => navigate('/queue')}>

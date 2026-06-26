@@ -109,6 +109,10 @@ def test_force_overwrites_manual_rows(tmp_path, db):
     result = import_captions(str(tmp_path), 1, db, force=True)
     assert result.skipped_manual == 0
     assert result.imported == 12
+    db.commit()
+    row = db.query(Caption).filter_by(video_id=1, language="en", platform="tiktok").first()
+    assert row.caption == "Pizza tiktok EN"
+    assert row.source == "skill"
 
 
 def test_missing_file_returns_error(tmp_path, db):

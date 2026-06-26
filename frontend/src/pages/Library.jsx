@@ -7,7 +7,7 @@ import './Library.css'
 
 const FILTERS = [
   { label: 'All',       value: '' },
-  { label: 'New',       value: 'new' },
+  { label: 'Draft',     value: 'draft' },
   { label: 'Scheduled', value: 'scheduled' },
   { label: 'Posted',    value: 'published' },
 ]

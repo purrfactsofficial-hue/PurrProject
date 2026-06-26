@@ -6,14 +6,15 @@ async function request(path) {
   return res.json()
 }
 
-async function post(path, body) {
+async function post(path, body, { allow422 = false } = {}) {
   const res = await fetch(`${BASE}${path}`, {
     method: 'POST',
     headers: body != null ? { 'Content-Type': 'application/json' } : {},
     body: body != null ? JSON.stringify(body) : undefined,
   })
   const data = await res.json().catch(() => ({}))
-  if (!res.ok && res.status !== 422) throw Object.assign(new Error(`${res.status} ${res.statusText}`), { data })
+  if (!res.ok && !(allow422 && res.status === 422))
+    throw Object.assign(new Error(`${res.status} ${res.statusText}`), { data })
   return data
 }
 
@@ -32,7 +33,7 @@ export function getVideo(id) {
 }
 
 export function importCaptions(videoId, force = false) {
-  return post(`/captions/import/${videoId}?force=${force}`)
+  return post(`/captions/import/${videoId}?force=${force}`, undefined, { allow422: true })
 }
 
 export function getCaptions(videoId) {

@@ -73,7 +73,7 @@ def scan(db: Annotated[Session, Depends(get_db)]) -> PagedResponse:
                 setattr(existing, key, ep[key])
             existing.languages = json.dumps(ep["languages"])
             existing.scanned_at = now
-            if existing.status not in ("scheduled", "published", "failed"):
+            if existing.status not in ("scheduled", "published", "failed", "ready"):
                 existing.status = new_status
         else:
             db.add(Video(

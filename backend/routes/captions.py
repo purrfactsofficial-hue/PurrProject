@@ -57,6 +57,9 @@ def import_captions_route(
 
 @router.get("/{video_id}", response_model=list[CaptionOut])
 def get_captions(video_id: int, db: Session = Depends(get_db)):
+    video = db.query(Video).filter(Video.id == video_id).first()
+    if video is None:
+        raise HTTPException(404, detail="Video not found")
     rows = db.query(Caption).filter(Caption.video_id == video_id).all()
     return [
         CaptionOut(

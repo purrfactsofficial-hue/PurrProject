@@ -164,3 +164,9 @@ def test_reimport_force_overwrites_manual(client):
     resp = c.post("/captions/import/1?force=true")
     assert resp.json()["skipped_manual"] == 0
     assert resp.json()["imported"] == 12
+
+
+def test_get_captions_unknown_video_returns_404(client):
+    c, _, _ = client
+    resp = c.get("/captions/9999")
+    assert resp.status_code == 404
