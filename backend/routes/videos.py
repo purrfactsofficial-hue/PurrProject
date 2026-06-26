@@ -62,14 +62,17 @@ def scan(db: Annotated[Session, Depends(get_db)]) -> PagedResponse:
     now = datetime.now(timezone.utc)
 
     for ep in episodes:
+        has_captions = ep.get("has_captions", False)
+        new_status = "ready" if has_captions else "draft"
         existing = db.query(Video).filter(Video.slug == ep["slug"]).first()
         if existing:
-            # Update metadata but never overwrite status (Phase 2+ manages that)
             for key in ("episode_num", "name", "folder_path", "primary_file",
                         "duration_secs", "size_bytes", "thumbnail_path"):
                 setattr(existing, key, ep[key])
             existing.languages = json.dumps(ep["languages"])
             existing.scanned_at = now
+            if existing.status not in ("scheduled", "published", "failed"):
+                existing.status = new_status
         else:
             db.add(Video(
                 episode_num=ep["episode_num"],
@@ -81,7 +84,7 @@ def scan(db: Annotated[Session, Depends(get_db)]) -> PagedResponse:
                 size_bytes=ep["size_bytes"],
                 thumbnail_path=ep["thumbnail_path"],
                 languages=json.dumps(ep["languages"]),
-                status="new",
+                status=new_status,
                 scanned_at=now,
             ))
 

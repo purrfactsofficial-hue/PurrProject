@@ -45,7 +45,9 @@ FAKE_SCAN = [
         "primary_file": "/purr/Episode 9 - Pizza/output/en/Episode_9___Pizza_FULL.mp4",
         "duration_secs": 44.0, "size_bytes": 17_600_000,
         "thumbnail_path": "/thumbs/episode-9-pizza.jpg",
-        "languages": ["en", "fr", "uk", "zh"], "status": "new",
+        "languages": ["en", "fr", "uk", "zh"],
+        "has_captions": False,
+        "status": "new",
     }
 ]
 

@@ -91,6 +91,7 @@ def scan_episodes(repo_path: Path, thumbs_dir: Path) -> list[dict]:
             "size_bytes": size,
             "thumbnail_path": thumb_path,
             "languages": detect_languages(entry),
+            "has_captions": (entry / "captions.json").exists(),
             "status": "new",
         })
 

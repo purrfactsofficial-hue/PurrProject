@@ -130,3 +130,24 @@ def test_scan_sorted_by_episode_num(mock_run, tmp_path):
     results = scan_episodes(tmp_path, thumbs)
     assert results[0]["episode_num"] == 2
     assert results[1]["episode_num"] == 19
+
+
+def test_scan_detects_captions_json_present(tmp_path):
+    _make_ep(tmp_path, "Episode 9 - Pizza", ["en"])
+    (tmp_path / "Episode 9 - Pizza" / "captions.json").write_text("{}", encoding="utf-8")
+    thumbs = tmp_path / "thumbs"
+    thumbs.mkdir()
+    with patch("services.video_scanner.subprocess.run") as mock_run:
+        mock_run.side_effect = [FAKE_FFPROBE, FAKE_FFMPEG]
+        results = scan_episodes(tmp_path, thumbs)
+    assert results[0]["has_captions"] is True
+
+
+def test_scan_detects_captions_json_absent(tmp_path):
+    _make_ep(tmp_path, "Episode 9 - Pizza", ["en"])
+    thumbs = tmp_path / "thumbs"
+    thumbs.mkdir()
+    with patch("services.video_scanner.subprocess.run") as mock_run:
+        mock_run.side_effect = [FAKE_FFPROBE, FAKE_FFMPEG]
+        results = scan_episodes(tmp_path, thumbs)
+    assert results[0]["has_captions"] is False
