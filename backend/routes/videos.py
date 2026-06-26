@@ -88,13 +88,13 @@ def scan(db: Annotated[Session, Depends(get_db)]) -> PagedResponse:
     db.commit()
 
     all_videos = db.query(Video).order_by(Video.episode_num).all()
-    per_page = 12
+    total = len(all_videos)
     return PagedResponse(
         items=[_to_out(v) for v in all_videos],
-        total=len(all_videos),
+        total=total,
         page=1,
-        pages=max(1, math.ceil(len(all_videos) / per_page)),
-        per_page=per_page,
+        pages=1,
+        per_page=max(total, 1),
     )
 
 
