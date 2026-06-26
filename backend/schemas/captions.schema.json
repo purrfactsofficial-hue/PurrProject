@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["schema_version", "episode", "languages"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "episode": { "type": "string", "minLength": 1 },
+    "episode_number": { "type": "integer", "minimum": 0 },
+    "topic_tags": {
+      "type": "object",
+      "properties": {
+        "en": { "type": "string", "pattern": "^#" },
+        "uk": { "type": "string", "pattern": "^#" },
+        "zh": { "type": "string", "pattern": "^#" },
+        "fr": { "type": "string", "pattern": "^#" }
+      }
+    },
+    "languages": {
+      "type": "object",
+      "required": ["en", "uk", "zh", "fr"],
+      "additionalProperties": false,
+      "properties": {
+        "en": { "$ref": "#/$defs/lang" },
+        "uk": { "$ref": "#/$defs/lang" },
+        "zh": { "$ref": "#/$defs/lang" },
+        "fr": { "$ref": "#/$defs/lang" }
+      }
+    }
+  },
+  "$defs": {
+    "hashtag": { "type": "string", "pattern": "^#\\S+$" },
+    "lang": {
+      "type": "object",
+      "required": ["youtube", "tiktok", "instagram"],
+      "properties": {
+        "youtube": {
+          "type": "object",
+          "required": ["title", "description", "hashtags"],
+          "properties": {
+            "title": { "type": "string", "minLength": 1, "maxLength": 100 },
+            "description": { "type": "string", "minLength": 1, "maxLength": 5000 },
+            "hashtags": {
+              "type": "array", "minItems": 3, "maxItems": 6,
+              "items": { "$ref": "#/$defs/hashtag" },
+              "allOf": [
+                { "contains": { "const": "#Shorts" } },
+                { "contains": { "const": "#PurrFacts" } }
+              ]
+            }
+          }
+        },
+        "tiktok": {
+          "type": "object",
+          "required": ["caption", "hashtags"],
+          "properties": {
+            "caption": { "type": "string", "minLength": 1, "maxLength": 150 },
+            "hashtags": {
+              "type": "array", "minItems": 1, "maxItems": 5,
+              "items": { "$ref": "#/$defs/hashtag" },
+              "contains": { "const": "#PurrFacts" }
+            }
+          }
+        },
+        "instagram": {
+          "type": "object",
+          "required": ["caption", "hashtags"],
+          "properties": {
+            "caption": { "type": "string", "minLength": 1, "maxLength": 2200 },
+            "hashtags": {
+              "type": "array", "minItems": 5, "maxItems": 5,
+              "items": { "$ref": "#/$defs/hashtag" },
+              "contains": { "const": "#PurrFacts" }
+            }
+          }
+        }
+      }
+    }
+  }
+}
