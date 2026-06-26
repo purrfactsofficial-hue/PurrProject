@@ -1,0 +1,48 @@
+:root {
+  --paper: #F6F2EA;
+  --paper-2: #FBF8F2;
+  --ink: #2A2622;
+  --ink-soft: #6F675E;
+  --yarn: #9C9388;
+  --pink: #DE839C;
+  --pink-deep: #C35D78;
+  --gold: #C29A26;
+  --gold-deep: #A07E16;
+  --line: #D9CFC0;
+  --ok: #5E9A78;
+  --radius: 14px;
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Hanken Grotesk', system-ui, sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.4;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+  background-image: radial-gradient(circle at 1px 1px, rgba(160,140,110,.06) 1px, transparent 0);
+  background-size: 5px 5px;
+  z-index: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
