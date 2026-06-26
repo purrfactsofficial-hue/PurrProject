@@ -78,7 +78,6 @@ def import_captions(
 
     rows_to_write = _build_rows(data, video_id)
     _upsert_rows(rows_to_write, db, result, force)
-    db.commit()
     return result
 
 

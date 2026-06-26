@@ -62,6 +62,7 @@ def _write(folder: Path, data: dict) -> None:
 def test_valid_import_returns_12(tmp_path, db):
     _write(tmp_path, VALID_CAPTIONS)
     result = import_captions(str(tmp_path), 1, db)
+    db.commit()
     assert result.imported == 12
     assert result.skipped_manual == 0
     assert result.errors == []
@@ -71,10 +72,12 @@ def test_valid_import_returns_12(tmp_path, db):
 def test_reimport_overwrites_skill_rows(tmp_path, db):
     _write(tmp_path, VALID_CAPTIONS)
     import_captions(str(tmp_path), 1, db)
+    db.commit()
     modified = json.loads(json.dumps(VALID_CAPTIONS))
     modified["languages"]["en"]["youtube"]["title"] = "Updated Title"
     _write(tmp_path, modified)
     result = import_captions(str(tmp_path), 1, db)
+    db.commit()
     assert result.imported == 12
     row = db.query(Caption).filter_by(video_id=1, language="en", platform="youtube").first()
     assert row.title == "Updated Title"
@@ -83,11 +86,13 @@ def test_reimport_overwrites_skill_rows(tmp_path, db):
 def test_manual_row_skipped_on_reimport(tmp_path, db):
     _write(tmp_path, VALID_CAPTIONS)
     import_captions(str(tmp_path), 1, db)
+    db.commit()
     row = db.query(Caption).filter_by(video_id=1, language="en", platform="tiktok").first()
     row.caption = "My hand-edit"
     row.source = "manual"
     db.commit()
     result = import_captions(str(tmp_path), 1, db)
+    db.commit()
     assert result.skipped_manual == 1
     assert result.imported == 11
     row = db.query(Caption).filter_by(video_id=1, language="en", platform="tiktok").first()
@@ -97,6 +102,7 @@ def test_manual_row_skipped_on_reimport(tmp_path, db):
 def test_force_overwrites_manual_rows(tmp_path, db):
     _write(tmp_path, VALID_CAPTIONS)
     import_captions(str(tmp_path), 1, db)
+    db.commit()
     row = db.query(Caption).filter_by(video_id=1, language="en", platform="tiktok").first()
     row.source = "manual"
     db.commit()
