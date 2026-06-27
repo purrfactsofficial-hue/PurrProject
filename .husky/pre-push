@@ -1,0 +1,24 @@
+#!/bin/sh
+
+ROOT="$(git rev-parse --show-toplevel)"
+
+if [ -f "$ROOT/backend/venv/Scripts/python" ]; then
+  PY="$ROOT/backend/venv/Scripts/python"
+elif [ -f "$ROOT/backend/venv/bin/python" ]; then
+  PY="$ROOT/backend/venv/bin/python"
+else
+  echo "ERROR: backend/venv not found."
+  exit 1
+fi
+
+echo "==> Backend: pytest + 90% coverage required"
+(cd "$ROOT/backend" && "$PY" -m pytest tests/ --cov=. --cov-report=term-missing --cov-fail-under=90 -q) || exit 1
+
+if [ -f "$ROOT/frontend/node_modules/.bin/vitest" ]; then
+  echo "==> Frontend: vitest + 90% coverage required"
+  (cd "$ROOT/frontend" && node_modules/.bin/vitest run --coverage) || exit 1
+else
+  echo "WARNING: vitest not installed in frontend — skipping FE coverage check"
+fi
+
+echo "Pre-push: all checks passed"

@@ -1,0 +1,14 @@
+config:
+  default: true
+  MD013: false  # line-length — code blocks make 80-char limit impractical
+  MD024: false  # duplicate headings — repeated Backend/Frontend subsections across phases is valid
+  MD033: false  # inline HTML — allowed in some docs
+  MD040: false  # fenced code language — plain-text/directory tree blocks are common
+  MD041: false  # first-line heading — not always applicable
+
+ignores:
+  - "node_modules/**"
+  - "frontend/node_modules/**"
+  - "frontend/coverage/**"
+  - ".superpowers/**"
+  - "docs/superpowers/**"

@@ -1,0 +1,50 @@
+#!/bin/sh
+
+ROOT="$(git rev-parse --show-toplevel)"
+
+if [ -f "$ROOT/backend/venv/Scripts/python" ]; then
+  PY="$ROOT/backend/venv/Scripts/python"
+elif [ -f "$ROOT/backend/venv/bin/python" ]; then
+  PY="$ROOT/backend/venv/bin/python"
+else
+  echo "ERROR: backend/venv not found. Run: cd backend && python -m venv venv && pip install -r requirements.txt"
+  exit 1
+fi
+
+echo "==> Python: ruff lint"
+"$PY" -m ruff check "$ROOT/backend/" || {
+  echo "  Fix: cd backend && venv/Scripts/python -m ruff check . --fix"
+  exit 1
+}
+
+echo "==> Python: ruff format check"
+"$PY" -m ruff format --check "$ROOT/backend/" || {
+  echo "  Fix: cd backend && venv/Scripts/python -m ruff format ."
+  exit 1
+}
+
+if [ -f "$ROOT/frontend/node_modules/.bin/eslint" ]; then
+  echo "==> JS: ESLint (zero warnings)"
+  (cd "$ROOT/frontend" && node_modules/.bin/eslint src/ --max-warnings=0) || {
+    echo "  Fix: cd frontend && npm run lint:fix"
+    exit 1
+  }
+fi
+
+if [ -f "$ROOT/frontend/node_modules/.bin/prettier" ]; then
+  echo "==> JS/CSS: Prettier format check"
+  (cd "$ROOT/frontend" && node_modules/.bin/prettier --check "src/**/*.{js,jsx,css}") || {
+    echo "  Fix: cd frontend && npm run format"
+    exit 1
+  }
+fi
+
+if [ -f "$ROOT/node_modules/.bin/markdownlint-cli2" ]; then
+  echo "==> Markdown: markdownlint-cli2"
+  (cd "$ROOT" && node_modules/.bin/markdownlint-cli2 "**/*.md") || {
+    echo "  Fix: npm run lint:md:fix"
+    exit 1
+  }
+fi
+
+echo "Pre-commit: all checks passed"

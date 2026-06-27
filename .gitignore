@@ -2,3 +2,8 @@ node_modules/
 frontend/node_modules/
 dist/
 frontend/dist/
+backend/.coverage
+frontend/coverage/
+*.pyc
+__pycache__/
+backend/venv/
