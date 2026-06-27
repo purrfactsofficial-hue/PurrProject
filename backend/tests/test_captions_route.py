@@ -1,7 +1,6 @@
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 from fastapi import FastAPI
@@ -16,12 +15,20 @@ from routes.captions import router
 TEST_DB = "sqlite:///:memory:"
 
 IMPORT_OK = {
-    "schema_version": "1.0", "episode": "Pizza",
+    "schema_version": "1.0",
+    "episode": "Pizza",
     "languages": {
         lang: {
-            "youtube": {"title": f"T {lang}", "description": f"D {lang}", "hashtags": ["#A", "#Shorts", "#PurrFacts"]},
+            "youtube": {
+                "title": f"T {lang}",
+                "description": f"D {lang}",
+                "hashtags": ["#A", "#Shorts", "#PurrFacts"],
+            },
             "tiktok": {"caption": f"C {lang}", "hashtags": ["#PurrFacts"]},
-            "instagram": {"caption": f"I {lang}", "hashtags": ["#A", "#B", "#C", "#D", "#PurrFacts"]},
+            "instagram": {
+                "caption": f"I {lang}",
+                "hashtags": ["#A", "#B", "#C", "#D", "#PurrFacts"],
+            },
         }
         for lang in ["en", "uk", "zh", "fr"]
     },
@@ -43,11 +50,18 @@ def client(tmp_path):
     app.dependency_overrides[get_db] = _db
 
     with Session(eng) as s:
-        s.add(Video(
-            id=1, episode_num=9, name="Pizza", slug="episode-9-pizza",
-            folder_path=str(tmp_path), languages='["en","uk","zh","fr"]',
-            status="draft", scanned_at=datetime.now(timezone.utc),
-        ))
+        s.add(
+            Video(
+                id=1,
+                episode_num=9,
+                name="Pizza",
+                slug="episode-9-pizza",
+                folder_path=str(tmp_path),
+                languages='["en","uk","zh","fr"]',
+                status="draft",
+                scanned_at=datetime.now(UTC),
+            )
+        )
         s.commit()
 
     with TestClient(app) as c:
@@ -116,10 +130,16 @@ def test_save_caption_marks_manual(client):
     c, eng, folder = client
     _write(folder, IMPORT_OK)
     c.post("/captions/import/1")
-    resp = c.post("/captions/save", json={
-        "video_id": 1, "language": "en", "platform": "tiktok",
-        "caption": "My edit", "hashtags": ["#PurrFacts"],
-    })
+    resp = c.post(
+        "/captions/save",
+        json={
+            "video_id": 1,
+            "language": "en",
+            "platform": "tiktok",
+            "caption": "My edit",
+            "hashtags": ["#PurrFacts"],
+        },
+    )
     assert resp.status_code == 200
     assert resp.json() == {"status": "saved"}
     with Session(eng) as s:
@@ -130,10 +150,16 @@ def test_save_caption_marks_manual(client):
 
 def test_save_caption_not_found_returns_404(client):
     c, _, _ = client
-    resp = c.post("/captions/save", json={
-        "video_id": 1, "language": "en", "platform": "tiktok",
-        "caption": "X", "hashtags": ["#PurrFacts"],
-    })
+    resp = c.post(
+        "/captions/save",
+        json={
+            "video_id": 1,
+            "language": "en",
+            "platform": "tiktok",
+            "caption": "X",
+            "hashtags": ["#PurrFacts"],
+        },
+    )
     assert resp.status_code == 404
 
 
@@ -141,10 +167,16 @@ def test_reimport_skips_manual_row(client):
     c, _, folder = client
     _write(folder, IMPORT_OK)
     c.post("/captions/import/1")
-    c.post("/captions/save", json={
-        "video_id": 1, "language": "en", "platform": "tiktok",
-        "caption": "My edit", "hashtags": ["#PurrFacts"],
-    })
+    c.post(
+        "/captions/save",
+        json={
+            "video_id": 1,
+            "language": "en",
+            "platform": "tiktok",
+            "caption": "My edit",
+            "hashtags": ["#PurrFacts"],
+        },
+    )
     resp = c.post("/captions/import/1")
     assert resp.json()["skipped_manual"] == 1
     rows = c.get("/captions/1").json()
@@ -157,10 +189,16 @@ def test_reimport_force_overwrites_manual(client):
     c, _, folder = client
     _write(folder, IMPORT_OK)
     c.post("/captions/import/1")
-    c.post("/captions/save", json={
-        "video_id": 1, "language": "en", "platform": "tiktok",
-        "caption": "My edit", "hashtags": ["#PurrFacts"],
-    })
+    c.post(
+        "/captions/save",
+        json={
+            "video_id": 1,
+            "language": "en",
+            "platform": "tiktok",
+            "caption": "My edit",
+            "hashtags": ["#PurrFacts"],
+        },
+    )
     resp = c.post("/captions/import/1?force=true")
     assert resp.json()["skipped_manual"] == 0
     assert resp.json()["imported"] == 12

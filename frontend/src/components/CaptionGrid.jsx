@@ -58,7 +58,11 @@ function CaptionCell({ cell, videoId, language, platform }) {
   }
 
   if (!cell) {
-    return <div className="caption-cell stitched" style={{ opacity: 0.4 }}>—</div>
+    return (
+      <div className="caption-cell stitched" style={{ opacity: 0.4 }}>
+        —
+      </div>
+    )
   }
 
   const titleLimit = platform === 'youtube' ? 100 : null
@@ -73,10 +77,17 @@ function CaptionCell({ cell, videoId, language, platform }) {
             className="cell-title"
             value={title}
             maxLength={100}
-            onChange={(e) => { setTitle(e.target.value); dirty.current = true }}
+            onChange={(e) => {
+              setTitle(e.target.value)
+              dirty.current = true
+            }}
             onBlur={handleSave}
           />
-          {titleLimit && <span className="char-count">{title.length}/{titleLimit}</span>}
+          {titleLimit && (
+            <span className="char-count">
+              {title.length}/{titleLimit}
+            </span>
+          )}
           <span className="cell-label">Description</span>
         </>
       )}
@@ -85,17 +96,30 @@ function CaptionCell({ cell, videoId, language, platform }) {
         className="cell-text"
         value={text}
         rows={platform === 'youtube' ? 4 : 3}
-        onChange={(e) => { setText(e.target.value); dirty.current = true }}
+        onChange={(e) => {
+          setText(e.target.value)
+          dirty.current = true
+        }}
         onBlur={handleSave}
       />
-      <span className="char-count">{text.length}/{textLimit}</span>
+      <span className="char-count">
+        {text.length}/{textLimit}
+      </span>
       <div className="hashtag-chips">
-        {cell.hashtags.map((h, i) => <span key={`${h}-${i}`} className="hashtag-chip">{h}</span>)}
+        {cell.hashtags.map((h, i) => (
+          <span key={`${h}-${i}`} className="hashtag-chip">
+            {h}
+          </span>
+        ))}
       </div>
       <div className="cell-footer">
         {isManual && <span className="edited-mark">edited</span>}
         {saving && <span className="saving-mark">saving…</span>}
-        {saveError && <span className="saving-mark" style={{ color: '#b04040' }}>{saveError}</span>}
+        {saveError && (
+          <span className="saving-mark" style={{ color: '#b04040' }}>
+            {saveError}
+          </span>
+        )}
       </div>
     </div>
   )
@@ -117,7 +141,9 @@ export default function CaptionGrid({ videoId, captions }) {
       <div className="caption-grid">
         <div className="grid-corner" />
         {PLATFORMS.map((p) => (
-          <div key={p} className="platform-label">{PLATFORM_LABELS[p]}</div>
+          <div key={p} className="platform-label">
+            {PLATFORM_LABELS[p]}
+          </div>
         ))}
         {LANGS.map((lang) => (
           <div key={lang} className="caption-row">

@@ -1,4 +1,5 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import JSONResponse
@@ -35,8 +36,8 @@ class SaveBody(BaseModel):
 @router.post("/import/{video_id}")
 def import_captions_route(
     video_id: int,
+    db: Annotated[Session, Depends(get_db)],
     force: bool = Query(False),
-    db: Session = Depends(get_db),
 ):
     video = db.query(Video).filter(Video.id == video_id).first()
     if video is None:
@@ -56,7 +57,7 @@ def import_captions_route(
 
 
 @router.get("/{video_id}", response_model=list[CaptionOut])
-def get_captions(video_id: int, db: Session = Depends(get_db)):
+def get_captions(video_id: int, db: Annotated[Session, Depends(get_db)]):
     video = db.query(Video).filter(Video.id == video_id).first()
     if video is None:
         raise HTTPException(404, detail="Video not found")
@@ -76,7 +77,7 @@ def get_captions(video_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/save")
-def save_caption(body: SaveBody, db: Session = Depends(get_db)):
+def save_caption(body: SaveBody, db: Annotated[Session, Depends(get_db)]):
     row = (
         db.query(Caption)
         .filter_by(video_id=body.video_id, language=body.language, platform=body.platform)
@@ -88,6 +89,6 @@ def save_caption(body: SaveBody, db: Session = Depends(get_db)):
     row.caption = body.caption
     row.hashtags = " ".join(body.hashtags)
     row.source = "manual"
-    row.updated_at = datetime.now(timezone.utc)
+    row.updated_at = datetime.now(UTC)
     db.commit()
     return {"status": "saved"}

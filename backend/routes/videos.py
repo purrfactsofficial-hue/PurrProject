@@ -1,8 +1,8 @@
 import json
 import math
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import FileResponse
@@ -22,13 +22,13 @@ class EpisodeOut(BaseModel):
     name: str
     slug: str
     folder_path: str
-    primary_file: Optional[str] = None
-    duration_secs: Optional[float] = None
-    size_bytes: Optional[int] = None
-    thumbnail_path: Optional[str] = None
+    primary_file: str | None = None
+    duration_secs: float | None = None
+    size_bytes: int | None = None
+    thumbnail_path: str | None = None
     languages: list[str] = []
     status: str
-    scanned_at: Optional[str] = None
+    scanned_at: str | None = None
 
     model_config = {"from_attributes": True}
 
@@ -61,34 +61,43 @@ def _to_out(v: Video) -> EpisodeOut:
 @router.get("/scan", response_model=PagedResponse)
 def scan(db: Annotated[Session, Depends(get_db)]) -> PagedResponse:
     episodes = scan_episodes(settings.video_repo_path, settings.thumbs_dir)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     for ep in episodes:
         has_captions = ep.get("has_captions", False)
         new_status = "ready" if has_captions else "draft"
         existing = db.query(Video).filter(Video.slug == ep["slug"]).first()
         if existing:
-            for key in ("episode_num", "name", "folder_path", "primary_file",
-                        "duration_secs", "size_bytes", "thumbnail_path"):
+            for key in (
+                "episode_num",
+                "name",
+                "folder_path",
+                "primary_file",
+                "duration_secs",
+                "size_bytes",
+                "thumbnail_path",
+            ):
                 setattr(existing, key, ep[key])
             existing.languages = json.dumps(ep["languages"])
             existing.scanned_at = now
             if existing.status not in ("scheduled", "published", "failed", "ready"):
                 existing.status = new_status
         else:
-            db.add(Video(
-                episode_num=ep["episode_num"],
-                name=ep["name"],
-                slug=ep["slug"],
-                folder_path=ep["folder_path"],
-                primary_file=ep["primary_file"],
-                duration_secs=ep["duration_secs"],
-                size_bytes=ep["size_bytes"],
-                thumbnail_path=ep["thumbnail_path"],
-                languages=json.dumps(ep["languages"]),
-                status=new_status,
-                scanned_at=now,
-            ))
+            db.add(
+                Video(
+                    episode_num=ep["episode_num"],
+                    name=ep["name"],
+                    slug=ep["slug"],
+                    folder_path=ep["folder_path"],
+                    primary_file=ep["primary_file"],
+                    duration_secs=ep["duration_secs"],
+                    size_bytes=ep["size_bytes"],
+                    thumbnail_path=ep["thumbnail_path"],
+                    languages=json.dumps(ep["languages"]),
+                    status=new_status,
+                    scanned_at=now,
+                )
+            )
 
     db.commit()
 
@@ -106,7 +115,7 @@ def scan(db: Annotated[Session, Depends(get_db)]) -> PagedResponse:
 @router.get("/list", response_model=PagedResponse)
 def list_videos(
     db: Annotated[Session, Depends(get_db)],
-    status: Optional[str] = Query(None),
+    status: str | None = Query(None),
     page: int = Query(1, ge=1),
     per_page: int = Query(12, ge=1, le=100),
 ) -> PagedResponse:
@@ -115,12 +124,7 @@ def list_videos(
         q = q.filter(Video.status == status)
     total = q.count()
     pages = max(1, math.ceil(total / per_page))
-    items = (
-        q.order_by(Video.episode_num)
-        .offset((page - 1) * per_page)
-        .limit(per_page)
-        .all()
-    )
+    items = q.order_by(Video.episode_num).offset((page - 1) * per_page).limit(per_page).all()
     return PagedResponse(
         items=[_to_out(v) for v in items],
         total=total,

@@ -19,10 +19,26 @@
   cursor: pointer;
   min-width: 38px;
   text-align: center;
-  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  transition:
+    background 0.12s,
+    color 0.12s,
+    border-color 0.12s;
 }
 
-.page-btn:hover    { background: #efe8db; color: var(--ink); }
-.page-btn.active   { background: var(--ink); border-color: var(--ink); color: #fff; }
-.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.page-btn:focus-visible { outline: 2px solid var(--pink); outline-offset: 2px; }
+.page-btn:hover {
+  background: #efe8db;
+  color: var(--ink);
+}
+.page-btn.active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.page-btn:focus-visible {
+  outline: 2px solid var(--pink);
+  outline-offset: 2px;
+}

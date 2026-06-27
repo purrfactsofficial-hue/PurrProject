@@ -41,7 +41,8 @@ def _primary_video(episode_dir: Path) -> Path | None:
 def _extract_metadata(video: Path) -> tuple[float | None, int | None]:
     result = subprocess.run(
         ["ffprobe", "-v", "quiet", "-print_format", "json", "-show_format", str(video)],
-        capture_output=True, text=True,
+        capture_output=True,
+        text=True,
     )
     if result.returncode != 0:
         return None, None
@@ -53,9 +54,21 @@ def _extract_metadata(video: Path) -> tuple[float | None, int | None]:
 
 def _extract_thumbnail(video: Path, thumb: Path) -> bool:
     result = subprocess.run(
-        ["ffmpeg", "-i", str(video), "-ss", "00:00:01", "-vframes", "1",
-         "-q:v", "2", str(thumb), "-y"],
-        capture_output=True, text=True,
+        [
+            "ffmpeg",
+            "-i",
+            str(video),
+            "-ss",
+            "00:00:01",
+            "-vframes",
+            "1",
+            "-q:v",
+            "2",
+            str(thumb),
+            "-y",
+        ],
+        capture_output=True,
+        text=True,
     )
     return result.returncode == 0
 
@@ -81,19 +94,21 @@ def scan_episodes(repo_path: Path, thumbs_dir: Path) -> list[dict]:
             if _extract_thumbnail(primary, thumb_file):
                 thumb_path = f"/thumbs/{slug}.jpg"
 
-        episodes.append({
-            "episode_num": episode_num,
-            "name": name,
-            "slug": slug,
-            "folder_path": str(entry),
-            "primary_file": str(primary) if primary else None,
-            "duration_secs": duration,
-            "size_bytes": size,
-            "thumbnail_path": thumb_path,
-            "languages": detect_languages(entry),
-            "has_captions": (entry / "captions.json").exists(),
-            "status": "new",
-        })
+        episodes.append(
+            {
+                "episode_num": episode_num,
+                "name": name,
+                "slug": slug,
+                "folder_path": str(entry),
+                "primary_file": str(primary) if primary else None,
+                "duration_secs": duration,
+                "size_bytes": size,
+                "thumbnail_path": thumb_path,
+                "languages": detect_languages(entry),
+                "has_captions": (entry / "captions.json").exists(),
+                "status": "new",
+            }
+        )
 
     episodes.sort(key=lambda e: e["episode_num"])
     return episodes

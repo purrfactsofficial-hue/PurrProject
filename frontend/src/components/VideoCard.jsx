@@ -26,7 +26,8 @@ function fmtSize(bytes) {
 }
 
 export default function VideoCard({ episode }) {
-  const { episode_num, name, thumbnail_path, duration_secs, size_bytes, languages, status } = episode
+  const { episode_num, name, thumbnail_path, duration_secs, size_bytes, languages, status } =
+    episode
   const gradient = GRADIENTS[(episode_num - 1) % GRADIENTS.length]
   const duration = fmtDuration(duration_secs)
   const size = fmtSize(size_bytes)
@@ -38,14 +39,12 @@ export default function VideoCard({ episode }) {
           <img
             src={`/api${thumbnail_path}`}
             alt={name}
-            onError={(e) => { e.currentTarget.style.display = 'none' }}
+            onError={(e) => {
+              e.currentTarget.style.display = 'none'
+            }}
           />
         ) : null}
-        <div
-          className="thumb-fallback"
-          style={{ background: gradient }}
-          aria-hidden="true"
-        />
+        <div className="thumb-fallback" style={{ background: gradient }} aria-hidden="true" />
         <span className="ep-badge">Ep {episode_num}</span>
         {duration && <span className="dur">{duration}</span>}
       </div>
@@ -53,16 +52,21 @@ export default function VideoCard({ episode }) {
       <div className="card-body">
         <div className="card-name">{name}</div>
         <div className="card-sub">
-          Episode {episode_num}{size ? ` · ${size}` : ''} · mp4
+          Episode {episode_num}
+          {size ? ` · ${size}` : ''} · mp4
         </div>
         <div className="langs">
           {languages.map((lang) => (
-            <span key={lang} className="lang-chip">{lang.toUpperCase()}</span>
+            <span key={lang} className="lang-chip">
+              {lang.toUpperCase()}
+            </span>
           ))}
         </div>
         <div className="card-status">
           <StatusTag status={status} />
-          <button className="open-btn" tabIndex={-1} aria-hidden="true">Open →</button>
+          <button className="open-btn" tabIndex={-1} aria-hidden="true">
+            Open →
+          </button>
         </div>
       </div>
     </article>

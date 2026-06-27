@@ -1,8 +1,16 @@
-import json
-from datetime import datetime, timezone
-from typing import Generator
+from collections.abc import Generator
+from datetime import UTC, datetime
 
-from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, Text, UniqueConstraint, create_engine
+from sqlalchemy import (
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    Text,
+    UniqueConstraint,
+    create_engine,
+)
 from sqlalchemy.orm import DeclarativeBase, Session
 
 from config import settings
@@ -26,7 +34,7 @@ class Video(Base):
     thumbnail_path = Column(Text)
     languages = Column(Text, default="[]")
     status = Column(Text, default="new")
-    scanned_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    scanned_at = Column(DateTime, default=lambda: datetime.now(UTC))
 
 
 class Caption(Base):
@@ -41,12 +49,10 @@ class Caption(Base):
     caption = Column(Text, nullable=False)
     hashtags = Column(Text, nullable=False)
     source = Column(Text, nullable=False, default="skill")
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(UTC))
 
 
-engine = create_engine(
-    settings.database_url, connect_args={"check_same_thread": False}
-)
+engine = create_engine(settings.database_url, connect_args={"check_same_thread": False})
 
 
 def create_tables() -> None:

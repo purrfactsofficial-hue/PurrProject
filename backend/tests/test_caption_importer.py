@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
 
 from database import Base, Caption, Video
-from services.caption_importer import ImportResult, import_captions
+from services.caption_importer import import_captions
 
 TEST_DB = "sqlite:///:memory:"
 
@@ -18,24 +18,52 @@ VALID_CAPTIONS = {
     "episode_number": 9,
     "languages": {
         "en": {
-            "youtube": {"title": "Pizza title EN", "description": "Pizza desc EN", "hashtags": ["#KidsLearning", "#Shorts", "#PurrFacts"]},
+            "youtube": {
+                "title": "Pizza title EN",
+                "description": "Pizza desc EN",
+                "hashtags": ["#KidsLearning", "#Shorts", "#PurrFacts"],
+            },
             "tiktok": {"caption": "Pizza tiktok EN", "hashtags": ["#PurrFacts"]},
-            "instagram": {"caption": "Pizza ig EN", "hashtags": ["#A", "#B", "#C", "#D", "#PurrFacts"]},
+            "instagram": {
+                "caption": "Pizza ig EN",
+                "hashtags": ["#A", "#B", "#C", "#D", "#PurrFacts"],
+            },
         },
         "uk": {
-            "youtube": {"title": "Pizza title UK", "description": "Pizza desc UK", "hashtags": ["#НавчанняДляДітей", "#Shorts", "#PurrFacts"]},
+            "youtube": {
+                "title": "Pizza title UK",
+                "description": "Pizza desc UK",
+                "hashtags": ["#НавчанняДляДітей", "#Shorts", "#PurrFacts"],
+            },
             "tiktok": {"caption": "Pizza tiktok UK", "hashtags": ["#PurrFacts"]},
-            "instagram": {"caption": "Pizza ig UK", "hashtags": ["#A", "#B", "#C", "#D", "#PurrFacts"]},
+            "instagram": {
+                "caption": "Pizza ig UK",
+                "hashtags": ["#A", "#B", "#C", "#D", "#PurrFacts"],
+            },
         },
         "zh": {
-            "youtube": {"title": "Pizza title ZH", "description": "Pizza desc ZH", "hashtags": ["#兒童教育", "#Shorts", "#PurrFacts"]},
+            "youtube": {
+                "title": "Pizza title ZH",
+                "description": "Pizza desc ZH",
+                "hashtags": ["#兒童教育", "#Shorts", "#PurrFacts"],
+            },
             "tiktok": {"caption": "Pizza tiktok ZH", "hashtags": ["#PurrFacts"]},
-            "instagram": {"caption": "Pizza ig ZH", "hashtags": ["#A", "#B", "#C", "#D", "#PurrFacts"]},
+            "instagram": {
+                "caption": "Pizza ig ZH",
+                "hashtags": ["#A", "#B", "#C", "#D", "#PurrFacts"],
+            },
         },
         "fr": {
-            "youtube": {"title": "Pizza title FR", "description": "Pizza desc FR", "hashtags": ["#ApprendreEnSamusant", "#Shorts", "#PurrFacts"]},
+            "youtube": {
+                "title": "Pizza title FR",
+                "description": "Pizza desc FR",
+                "hashtags": ["#ApprendreEnSamusant", "#Shorts", "#PurrFacts"],
+            },
             "tiktok": {"caption": "Pizza tiktok FR", "hashtags": ["#PurrFacts"]},
-            "instagram": {"caption": "Pizza ig FR", "hashtags": ["#A", "#B", "#C", "#D", "#PurrFacts"]},
+            "instagram": {
+                "caption": "Pizza ig FR",
+                "hashtags": ["#A", "#B", "#C", "#D", "#PurrFacts"],
+            },
         },
     },
 }
@@ -46,11 +74,18 @@ def db():
     eng = create_engine(TEST_DB, connect_args={"check_same_thread": False}, poolclass=StaticPool)
     Base.metadata.create_all(eng)
     with Session(eng) as s:
-        s.add(Video(
-            id=1, episode_num=9, name="Pizza", slug="episode-9-pizza",
-            folder_path="/fake", languages='["en","uk","zh","fr"]',
-            status="draft", scanned_at=datetime.now(timezone.utc),
-        ))
+        s.add(
+            Video(
+                id=1,
+                episode_num=9,
+                name="Pizza",
+                slug="episode-9-pizza",
+                folder_path="/fake",
+                languages='["en","uk","zh","fr"]',
+                status="draft",
+                scanned_at=datetime.now(UTC),
+            )
+        )
         s.commit()
         yield s
 
@@ -174,4 +209,8 @@ def test_bom_prefix_returns_error(tmp_path, db):
     (tmp_path / "captions.json").write_bytes(content)
     result = import_captions(str(tmp_path), 1, db)
     assert result.errors
-    assert "BOM" in result.errors[0] or "UTF-8" in result.errors[0] or "parse" in result.errors[0].lower()
+    assert (
+        "BOM" in result.errors[0]
+        or "UTF-8" in result.errors[0]
+        or "parse" in result.errors[0].lower()
+    )

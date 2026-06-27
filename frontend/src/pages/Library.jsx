@@ -6,22 +6,22 @@ import VideoCard from '../components/VideoCard.jsx'
 import './Library.css'
 
 const FILTERS = [
-  { label: 'All',       value: '' },
-  { label: 'Draft',     value: 'draft' },
+  { label: 'All', value: '' },
+  { label: 'Draft', value: 'draft' },
   { label: 'Scheduled', value: 'scheduled' },
-  { label: 'Posted',    value: 'published' },
+  { label: 'Posted', value: 'published' },
 ]
 
 export default function Library() {
-  const [episodes,     setEpisodes]     = useState([])
-  const [total,        setTotal]        = useState(0)
-  const [pages,        setPages]        = useState(1)
-  const [page,         setPage]         = useState(1)
+  const [episodes, setEpisodes] = useState([])
+  const [total, setTotal] = useState(0)
+  const [pages, setPages] = useState(1)
+  const [page, setPage] = useState(1)
   const [activeFilter, setActiveFilter] = useState('')
-  const [loading,      setLoading]      = useState(false)
-  const [scanning,     setScanning]     = useState(false)
-  const [error,        setError]        = useState(null)
-  const [lastScanned,  setLastScanned]  = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [scanning, setScanning] = useState(false)
+  const [error, setError] = useState(null)
+  const [lastScanned, setLastScanned] = useState(null)
 
   const loadList = useCallback(async (status, p) => {
     setLoading(true)
@@ -54,7 +54,9 @@ export default function Library() {
   }, [activeFilter, loadList])
 
   // Scan once on mount
-  useEffect(() => { handleScan() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    handleScan()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleFilter = (value) => {
     setActiveFilter(value)
@@ -74,7 +76,9 @@ export default function Library() {
       <div className="library-top">
         <div>
           <div className="eyebrow">Your worktable</div>
-          <h1 className="library-title">Library <em>·</em> rendered clips</h1>
+          <h1 className="library-title">
+            Library <em>·</em> rendered clips
+          </h1>
         </div>
         <button className="scan-btn" onClick={handleScan} disabled={isBusy}>
           {scanning ? 'Scanning…' : '↻ Scan folder'}
@@ -125,11 +129,18 @@ export default function Library() {
         ) : episodes.length === 0 ? (
           <div className="state-box">
             <h2>No episodes found</h2>
-            <p>No episodes found. Make sure your video folder is set in <code>backend/.env</code> and click <strong>Scan folder</strong> to try again.</p>
+            <p>
+              No episodes found. Make sure your video folder is set in <code>backend/.env</code> and
+              click <strong>Scan folder</strong> to try again.
+            </p>
           </div>
         ) : (
           episodes.map((ep) => (
-            <Link key={ep.id} to={`/episode/${ep.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+            <Link
+              key={ep.id}
+              to={`/episode/${ep.id}`}
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
               <VideoCard episode={ep} />
             </Link>
           ))

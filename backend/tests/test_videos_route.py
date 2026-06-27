@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import patch
 
 import pytest
@@ -40,10 +40,13 @@ def client():
 
 FAKE_SCAN = [
     {
-        "episode_num": 9, "name": "Pizza", "slug": "episode-9-pizza",
+        "episode_num": 9,
+        "name": "Pizza",
+        "slug": "episode-9-pizza",
         "folder_path": "/purr/Episode 9 - Pizza",
         "primary_file": "/purr/Episode 9 - Pizza/output/en/Episode_9___Pizza_FULL.mp4",
-        "duration_secs": 44.0, "size_bytes": 17_600_000,
+        "duration_secs": 44.0,
+        "size_bytes": 17_600_000,
         "thumbnail_path": "/thumbs/episode-9-pizza.jpg",
         "languages": ["en", "fr", "uk", "zh"],
         "has_captions": False,
@@ -98,11 +101,17 @@ def test_scan_does_not_reset_status(mock_scan, client):
 def _seed(eng, count: int, status: str = "new") -> None:
     with Session(eng) as s:
         for i in range(1, count + 1):
-            s.add(Video(
-                episode_num=i, name=f"Ep{i}", slug=f"ep-{i}",
-                folder_path=f"/p/{i}", languages='["en"]',
-                status=status, scanned_at=datetime.now(timezone.utc),
-            ))
+            s.add(
+                Video(
+                    episode_num=i,
+                    name=f"Ep{i}",
+                    slug=f"ep-{i}",
+                    folder_path=f"/p/{i}",
+                    languages='["en"]',
+                    status=status,
+                    scanned_at=datetime.now(UTC),
+                )
+            )
         s.commit()
 
 
@@ -129,11 +138,17 @@ def test_list_filter_by_status(client):
     _seed(eng, 5, status="new")
     with Session(eng) as s:
         for i in range(6, 9):
-            s.add(Video(
-                episode_num=i, name=f"Ep{i}", slug=f"ep-{i}",
-                folder_path=f"/p/{i}", languages='["en"]',
-                status="published", scanned_at=datetime.now(timezone.utc),
-            ))
+            s.add(
+                Video(
+                    episode_num=i,
+                    name=f"Ep{i}",
+                    slug=f"ep-{i}",
+                    folder_path=f"/p/{i}",
+                    languages='["en"]',
+                    status="published",
+                    scanned_at=datetime.now(UTC),
+                )
+            )
         s.commit()
 
     assert c.get("/videos/list?status=new").json()["total"] == 5
@@ -149,11 +164,17 @@ def test_list_invalid_page_returns_422(client):
 def test_get_video_by_id(client):
     c, eng = client
     with Session(eng) as s:
-        s.add(Video(
-            episode_num=9, name="Pizza", slug="episode-9-pizza",
-            folder_path="/fake", languages='["en"]',
-            status="draft", scanned_at=datetime.now(timezone.utc),
-        ))
+        s.add(
+            Video(
+                episode_num=9,
+                name="Pizza",
+                slug="episode-9-pizza",
+                folder_path="/fake",
+                languages='["en"]',
+                status="draft",
+                scanned_at=datetime.now(UTC),
+            )
+        )
         s.commit()
         vid_id = s.query(Video).first().id
     resp = c.get(f"/videos/{vid_id}")

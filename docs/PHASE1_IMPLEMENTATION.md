@@ -22,7 +22,7 @@ foundation everything else mounts onto.
 
 These files exist from our build session and are ready to drop in:
 
-```
+```text
 backend/
 ├── config.py            ✅ env vars, channel names, posting hours
 ├── database.py          ✅ SQLite models (videos, captions, posts, analytics, followers, notifications)
@@ -40,6 +40,7 @@ backend/
 ### Still to write for Phase 1
 
 **`backend/main.py`** — the entry point that ties it together:
+
 - Create FastAPI app
 - Enable CORS for `http://localhost:5173` (the Vite dev server)
 - `create_tables()` on startup
@@ -51,6 +52,7 @@ backend/
 For Phase 1 only `VIDEO_REPO_PATH` matters; the rest can stay blank until later phases.
 
 ### Run the backend
+
 ```bash
 cd backend
 python -m venv venv
@@ -59,6 +61,7 @@ pip install -r requirements.txt
 copy .env.example .env          # then set VIDEO_REPO_PATH
 uvicorn main:app --reload --port 8000
 ```
+
 Verify: open `http://localhost:8000/videos/scan` → JSON list of your clips.
 
 ---
@@ -68,7 +71,7 @@ Verify: open `http://localhost:8000/videos/scan` → JSON list of your clips.
 Stack: **React + Vite + plain CSS** (no UI framework — the design direction you pick is
 custom, and a framework would fight it). Routing via `react-router-dom`.
 
-```
+```text
 frontend/
 ├── package.json
 ├── vite.config.js          # proxy /api → localhost:8000
@@ -91,6 +94,7 @@ frontend/
 ```
 
 ### Library.jsx behaviour
+
 1. On mount, call `GET /api/videos/scan`
 2. Show a loading state while scanning (ffprobe takes ~1s per clip)
 3. Render the grid of `VideoCard`s from the response
@@ -99,6 +103,7 @@ frontend/
 6. Error state: if the backend is unreachable, say so and how to start it
 
 ### Run the frontend
+
 ```bash
 cd frontend
 npm install
@@ -127,6 +132,7 @@ identical across all three; only `tokens.css` and the `Nav` layout change.
 ## 4 · One-click launcher
 
 **`run.bat`** at the project root:
+
 ```bat
 @echo off
 echo Starting PurrFacts Platform...

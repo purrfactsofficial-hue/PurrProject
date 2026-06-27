@@ -14,7 +14,7 @@ This spec covers exactly one thing: the per-episode `captions.json` file — its
 schema, validation, and how the platform ingests it. It does **not** cover script lines,
 generation prompts, scheduling, or posting. Those are separate concerns.
 
-```
+```text
 /purrfacts-scenario  ──writes──▶  captions.json  ──reads──▶  caption_importer.py  ──▶  captions table
 ```
 
@@ -24,7 +24,7 @@ generation prompts, scheduling, or posting. Those are separate concerns.
 
 One file per **episode folder**:
 
-```
+```text
 <VIDEO_REPO_PATH>\<EpisodeFolder>\captions.json
 e.g.  C:\Users\yborodulina\Downloads\Purr\Episode_Pizza\captions.json
 ```
@@ -62,6 +62,7 @@ e.g.  C:\Users\yborodulina\Downloads\Purr\Episode_Pizza\captions.json
 ```
 
 ### Required keys
+
 - Top level: `schema_version`, `episode`, `languages`. (`episode_number`, `topic_tags` optional but recommended.)
 - `languages` MUST contain all four: `en`, `uk`, `zh`, `fr`.
 - Each language MUST contain all three: `youtube`, `tiktok`, `instagram`.
@@ -215,11 +216,13 @@ Unknown fields are ignored (forward-compatible). Unknown **major** versions are 
 ## 7. Importer behaviour (`caption_importer.py`)
 
 ### Signature
-```
+
+```python
 import_captions(episode_folder: str, video_links: dict[str,int], force: bool=False) -> ImportResult
 ```
 
 ### Steps
+
 1. Locate `captions.json` in `episode_folder`. Missing → error result.
 2. Parse JSON. Invalid → error result with line/column.
 3. Validate against the JSON Schema (§5) + the severity table (§6).
@@ -239,6 +242,7 @@ import_captions(episode_folder: str, video_links: dict[str,int], force: bool=Fal
 6. Return `ImportResult { imported, skipped_manual, warnings, errors }`.
 
 ### ImportResult shape (also the API response)
+
 ```json
 { "imported": 12, "skipped_manual": 0, "warnings": [], "errors": [] }
 ```
@@ -275,6 +279,7 @@ row; `video_links = { "en": 41, "uk": 42, "zh": 43, "fr": 44 }`.
 ## 10. Writer responsibilities (`/purrfacts-scenario` skill)
 
 When the skill finishes an episode it MUST, as its final step:
+
 1. Assemble the object per §3 with `schema_version: "1.0"`.
 2. Produce all 12 cells — no placeholders, no empty strings.
 3. Apply the per-platform hashtag rules (§4) including `#PurrFacts` everywhere and `#Shorts`

@@ -16,7 +16,7 @@ save → ready to schedule.
 
 The skill drops one file per episode into the episode folder:
 
-```
+```text
 C:\Users\yborodulina\Downloads\Purr\Episode_Pizza\captions.json
 ```
 
@@ -39,6 +39,7 @@ C:\Users\yborodulina\Downloads\Purr\Episode_Pizza\captions.json
 ```
 
 **Field rules (must match the skill's output exactly):**
+
 - `youtube` → `title` + `description` + `hashtags` (always includes `#Shorts`)
 - `tiktok` → `caption` (one line) + `hashtags` (≤5)
 - `instagram` → `caption` (1–2 sentences) + `hashtags` (exactly 5)
@@ -54,6 +55,7 @@ If you'd rather have one file per language video, say so and the importer change
 ## Backend
 
 ### Files
+
 - [ ] `services/caption_importer.py` — find + parse `captions.json`, validate against the schema
 - [ ] `routes/captions.py` — replace the old `/generate` stub with:
   - `POST /captions/import/{video_id}` — read the episode's `captions.json`, upsert all 12 rows
@@ -63,6 +65,7 @@ If you'd rather have one file per language video, say so and the importer change
   (drives the Library status: present → "Captions ready", absent → "Draft")
 
 ### What `caption_importer.py` does
+
 1. Locate `captions.json` in the video's episode folder
 2. Validate: all 4 languages present, each with 3 platforms, required fields per platform
 3. For each language × platform → upsert a `captions` row
@@ -70,12 +73,14 @@ If you'd rather have one file per language video, say so and the importer change
 4. Return a summary: imported / skipped / validation errors
 
 ### Validation messages (interface voice, not apologies)
+
 - Missing file → "No captions.json in Episode_Pizza. Run /purrfacts-scenario for this
   episode, then Import."
 - Missing language → "captions.json is missing the `uk` block. Fix the file and re-import."
 - Missing #PurrFacts → warn, don't block: "fr/tiktok is missing #PurrFacts."
 
 ### Caption model (already updated)
+
 `captions` now has `title` (YouTube), `caption` (description or caption text),
 `hashtags`, and `source` ('skill' | 'manual').
 
@@ -84,12 +89,14 @@ If you'd rather have one file per language video, say so and the importer change
 ## Frontend (Atelier direction)
 
 ### `pages/Episode.jsx`
+
 - Episode header: name, episode number, the video preview (HTML5 `<video>` from the local path)
 - "Import descriptions" button → calls `/captions/import/{id}`
 - The review grid (see below)
 - "Save & continue to scheduling" → persists, routes to the date picker (Phase 3)
 
 ### `components/CaptionGrid.jsx` — the 4×3 review grid
+
 - Rows = languages (EN, UK, ZH, FR), columns = platforms (YouTube, Instagram, TikTok)
 - Each cell is an editable card, stitched-seam border (Atelier `.stitched`):
   - YouTube cell: **Title** field + **Description** textarea + hashtag chips
@@ -100,6 +107,7 @@ If you'd rather have one file per language video, say so and the importer change
   "No descriptions imported. Click Import to pull them from this episode's captions.json."
 
 ### Status flow back to Library
+
 - `captions.json` found + imported → card shows **Captions ready**
 - video present, no captions → **Draft**
 - once Phase 3 schedules it → **Scheduled**
@@ -110,6 +118,7 @@ If you'd rather have one file per language video, say so and the importer change
 
 When you update `/purrfacts-scenario`, add a final step that writes `captions.json` with the
 exact structure above. The platform importer and the skill writer must agree on:
+
 - the filename `captions.json`
 - the `languages.{lang}.{platform}` nesting
 - the per-platform field names (`title`/`description` vs `caption`)

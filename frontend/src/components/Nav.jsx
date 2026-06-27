@@ -25,7 +25,7 @@ export default function Nav() {
             key={to}
             to={to}
             end={to === '/'}
-            className={({ isActive }) => isActive ? 'active' : undefined}
+            className={({ isActive }) => (isActive ? 'active' : undefined)}
           >
             <span className="ic">{icon}</span>
             {label}
@@ -33,7 +33,9 @@ export default function Nav() {
         ))}
       </nav>
       <div className="side-foot">
-        Signed in as<br /><b>borodulina.iana</b>
+        Signed in as
+        <br />
+        <b>borodulina.iana</b>
       </div>
     </aside>
   )

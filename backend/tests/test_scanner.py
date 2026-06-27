@@ -1,15 +1,12 @@
-import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from services.video_scanner import detect_languages, parse_episode_folder, scan_episodes
-
 
 # ---------------------------------------------------------------------------
 # parse_episode_folder
 # ---------------------------------------------------------------------------
+
 
 def test_parse_episode_folder_single_word():
     result = parse_episode_folder("Episode 9 - Pizza")
@@ -38,6 +35,7 @@ def test_parse_episode_folder_returns_none_for_unrecognised():
 # detect_languages
 # ---------------------------------------------------------------------------
 
+
 def test_detect_languages_finds_all_four(tmp_path):
     for lang in ["en", "fr", "uk", "zh"]:
         d = tmp_path / "output" / lang
@@ -57,7 +55,7 @@ def test_detect_languages_partial(tmp_path):
 def test_detect_languages_dir_exists_but_no_full_mp4(tmp_path):
     d = tmp_path / "output" / "en"
     d.mkdir(parents=True)
-    (d / "scene1_FINAL.mp4").touch()   # not a FULL file
+    (d / "scene1_FINAL.mp4").touch()  # not a FULL file
     assert detect_languages(tmp_path) == []
 
 
@@ -69,8 +67,10 @@ def test_detect_languages_no_output_dir(tmp_path):
 # scan_episodes — integration-style with mocked subprocess
 # ---------------------------------------------------------------------------
 
-FAKE_FFPROBE = MagicMock(returncode=0, stdout='{"format":{"duration":"44.5","size":"17600000"}}', stderr="")
-FAKE_FFMPEG  = MagicMock(returncode=0, stdout="", stderr="")
+FAKE_FFPROBE = MagicMock(
+    returncode=0, stdout='{"format":{"duration":"44.5","size":"17600000"}}', stderr=""
+)
+FAKE_FFMPEG = MagicMock(returncode=0, stdout="", stderr="")
 
 
 def _make_ep(root: Path, folder: str, langs: list[str]) -> None:
@@ -119,8 +119,10 @@ def test_scan_skips_common_parts(mock_run, tmp_path):
 @patch("services.video_scanner.subprocess.run")
 def test_scan_sorted_by_episode_num(mock_run, tmp_path):
     mock_run.side_effect = [
-        FAKE_FFPROBE, FAKE_FFMPEG,
-        FAKE_FFPROBE, FAKE_FFMPEG,
+        FAKE_FFPROBE,
+        FAKE_FFMPEG,
+        FAKE_FFPROBE,
+        FAKE_FFMPEG,
     ]
     _make_ep(tmp_path, "Episode 19 - Cosmos", ["en"])
     _make_ep(tmp_path, "Episode 2 - Venus", ["en"])

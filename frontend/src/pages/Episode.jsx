@@ -34,9 +34,8 @@ export default function Episode() {
         const updated = await getCaptions(numericId)
         setCaptions(updated)
       } else if (result.detail) {
-        const msg = typeof result.detail === 'string'
-          ? result.detail
-          : 'Import failed: validation error'
+        const msg =
+          typeof result.detail === 'string' ? result.detail : 'Import failed: validation error'
         setError(msg)
       }
     } catch (err) {
@@ -53,7 +52,9 @@ export default function Episode() {
   return (
     <div className="episode-page">
       <div className="ep-header">
-        <button className="back-btn" onClick={() => navigate('/')}>← Library</button>
+        <button className="back-btn" onClick={() => navigate('/')}>
+          ← Library
+        </button>
         <div>
           <div className="ep-eyebrow">Episode {episode.episode_num}</div>
           <h1 className="ep-title">{episode.name}</h1>

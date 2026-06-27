@@ -1,6 +1,6 @@
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import jsonschema
@@ -98,9 +98,7 @@ def _custom_checks(data: dict) -> list[str]:
     langs = data.get("languages", {})
     for lang in _LANGS:
         if lang not in langs:
-            errors.append(
-                f"captions.json is missing the `{lang}` block. Add it and re-import."
-            )
+            errors.append(f"captions.json is missing the `{lang}` block. Add it and re-import.")
             continue
         for platform in _PLATFORMS:
             if platform not in langs[lang]:
@@ -116,9 +114,7 @@ def _custom_checks(data: dict) -> list[str]:
             if platform == "youtube":
                 title = block.get("title", "")
                 if len(title) > 100:
-                    errors.append(
-                        f"`{lang}/youtube` title is {len(title)} chars (max 100)."
-                    )
+                    errors.append(f"`{lang}/youtube` title is {len(title)} chars (max 100).")
     return errors
 
 
@@ -149,19 +145,21 @@ def _build_rows(data: dict, video_id: int) -> list[dict]:
                 title = None
                 caption = block["caption"]
             hashtags = " ".join(block["hashtags"])
-            rows.append({
-                "video_id": video_id,
-                "language": lang,
-                "platform": platform,
-                "title": title,
-                "caption": caption,
-                "hashtags": hashtags,
-            })
+            rows.append(
+                {
+                    "video_id": video_id,
+                    "language": lang,
+                    "platform": platform,
+                    "title": title,
+                    "caption": caption,
+                    "hashtags": hashtags,
+                }
+            )
     return rows
 
 
 def _upsert_rows(rows: list[dict], db: Session, result: ImportResult, force: bool) -> None:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     for r in rows:
         existing = (
             db.query(Caption)
@@ -169,16 +167,18 @@ def _upsert_rows(rows: list[dict], db: Session, result: ImportResult, force: boo
             .first()
         )
         if existing is None:
-            db.add(Caption(
-                video_id=r["video_id"],
-                language=r["language"],
-                platform=r["platform"],
-                title=r["title"],
-                caption=r["caption"],
-                hashtags=r["hashtags"],
-                source="skill",
-                updated_at=now,
-            ))
+            db.add(
+                Caption(
+                    video_id=r["video_id"],
+                    language=r["language"],
+                    platform=r["platform"],
+                    title=r["title"],
+                    caption=r["caption"],
+                    hashtags=r["hashtags"],
+                    source="skill",
+                    updated_at=now,
+                )
+            )
             result.imported += 1
         elif existing.source == "manual" and not force:
             result.skipped_manual += 1

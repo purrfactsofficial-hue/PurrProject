@@ -43,13 +43,28 @@
   padding: 12px 18px;
   border-radius: 11px;
   box-shadow: 0 2px 0 var(--gold-deep);
-  transition: transform 0.12s, box-shadow 0.12s;
+  transition:
+    transform 0.12s,
+    box-shadow 0.12s;
 }
 
-.scan-btn:hover  { transform: translateY(-1px); box-shadow: 0 3px 0 var(--gold-deep); }
-.scan-btn:active { transform: translateY(1px);  box-shadow: 0 1px 0 var(--gold-deep); }
-.scan-btn:focus-visible { outline: 3px solid var(--pink); outline-offset: 2px; }
-.scan-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.scan-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 0 var(--gold-deep);
+}
+.scan-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 var(--gold-deep);
+}
+.scan-btn:focus-visible {
+  outline: 3px solid var(--pink);
+  outline-offset: 2px;
+}
+.scan-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
 
 .meta-row {
   display: flex;
@@ -97,11 +112,19 @@
   padding: 6px 12px;
   border-radius: 20px;
   cursor: pointer;
-  transition: background 0.12s, color 0.12s;
+  transition:
+    background 0.12s,
+    color 0.12s;
 }
 
-.chip:hover { background: var(--line); }
-.chip.on    { color: #fff; background: var(--ink); border-color: var(--ink); }
+.chip:hover {
+  background: var(--line);
+}
+.chip.on {
+  color: #fff;
+  background: var(--ink);
+  border-color: var(--ink);
+}
 
 .grid {
   display: grid;
@@ -137,8 +160,12 @@
 }
 
 @keyframes shimmer {
-  0%   { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .state-box {
@@ -156,7 +183,10 @@
   margin-bottom: 12px;
 }
 
-.state-box p  { font-size: 14px; line-height: 1.8; }
+.state-box p {
+  font-size: 14px;
+  line-height: 1.8;
+}
 
 .state-box code {
   font-size: 12px;
@@ -168,6 +198,10 @@
 }
 
 @media (max-width: 780px) {
-  .library-title { font-size: 30px; }
-  .filters { margin-left: 0; }
+  .library-title {
+    font-size: 30px;
+  }
+  .filters {
+    margin-left: 0;
+  }
 }

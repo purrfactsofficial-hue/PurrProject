@@ -8,7 +8,19 @@
   gap: 6px;
 }
 
-.tag-sched { color: var(--ok);        background: rgba(94,154,120,.13); }
-.tag-ready { color: var(--gold-deep); background: rgba(194,154,38,.15); }
-.tag-draft { color: var(--ink-soft);  background: #ece4d7; }
-.tag-new   { color: var(--pink-deep); background: rgba(222,131,156,.16); }
+.tag-sched {
+  color: var(--ok);
+  background: rgba(94, 154, 120, 0.13);
+}
+.tag-ready {
+  color: var(--gold-deep);
+  background: rgba(194, 154, 38, 0.15);
+}
+.tag-draft {
+  color: var(--ink-soft);
+  background: #ece4d7;
+}
+.tag-new {
+  color: var(--pink-deep);
+  background: rgba(222, 131, 156, 0.16);
+}
