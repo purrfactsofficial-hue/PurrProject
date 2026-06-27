@@ -1,0 +1,14 @@
+{
+  "name": "purr-project",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "prepare": "husky",
+    "lint:md": "markdownlint-cli2 \"**/*.md\"",
+    "lint:md:fix": "markdownlint-cli2 --fix \"**/*.md\""
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "markdownlint-cli2": "^0.17.2"
+  }
+}
