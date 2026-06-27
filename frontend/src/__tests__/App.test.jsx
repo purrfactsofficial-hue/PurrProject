@@ -58,8 +58,8 @@ describe('App routing', () => {
 
   it('renders Library at root path', async () => {
     renderApp('/')
-    // Library's title is visible during / after scan
-    expect(screen.getByText(/Library/)).toBeInTheDocument()
+    // 'Your worktable' eyebrow is unique to the Library page
+    expect(screen.getByText('Your worktable')).toBeInTheDocument()
   })
 
   it('shows the scan button at root', () => {
@@ -71,7 +71,8 @@ describe('App routing', () => {
 
   it('renders Queue placeholder at /queue', () => {
     renderApp('/queue')
-    expect(screen.getByText(/Queue/)).toBeInTheDocument()
+    // "Queue — Phase 3" is the exact stub text, distinct from the nav link
+    expect(screen.getByText('Queue — Phase 3')).toBeInTheDocument()
   })
 
   // ─── /dashboard ───────────────────────────────────────────────────────────────
@@ -85,7 +86,8 @@ describe('App routing', () => {
 
   it('renders Settings placeholder at /settings', () => {
     renderApp('/settings')
-    expect(screen.getByText(/Settings/)).toBeInTheDocument()
+    // "Settings — Phase 6" is the exact stub text, distinct from the nav link
+    expect(screen.getByText('Settings — Phase 6')).toBeInTheDocument()
   })
 
   // ─── /episode/:id ─────────────────────────────────────────────────────────────
