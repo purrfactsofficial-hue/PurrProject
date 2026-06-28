@@ -188,7 +188,29 @@ def reschedule_episode(episode_id: int, body: RescheduleBody, db: Session = Depe
     for p in posts:
         p.scheduled_for = compute_utc_slot(new_date, p.language)
     db.commit()
-    return {"moved": len(posts)}
+
+    # Query posts with episode join to construct PostOut objects
+    rows = (
+        db.query(ScheduledPost, Episode.topic)
+        .filter_by(episode_id=episode_id, status="scheduled")
+        .join(Episode, Episode.id == ScheduledPost.episode_id)
+        .all()
+    )
+    posts_out = [
+        PostOut(
+            id=p.id,
+            episode_id=p.episode_id,
+            episode_name=topic,
+            language=p.language,
+            platform=p.platform,
+            status=p.status,
+            scheduled_for=p.scheduled_for.isoformat() + "Z",
+            platform_post_id=p.platform_post_id,
+            error_message=p.error_message,
+        )
+        for p, topic in rows
+    ]
+    return {"moved": len(posts), "posts": [p.model_dump() for p in posts_out]}
 
 
 @router.patch("/{post_id}")

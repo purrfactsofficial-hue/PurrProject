@@ -378,7 +378,19 @@ def test_reschedule_episode_moves_all_scheduled_posts(client):
     _create_post(eng, lang="fr", plat="instagram", scheduled_for=datetime(2025, 7, 4, 18, 0, 0))
     resp = c.patch("/schedule/episode/1", json={"date": "2025-12-15"})
     assert resp.status_code == 200
-    assert resp.json()["moved"] == 3
+    data = resp.json()
+    assert data["moved"] == 3
+    assert "posts" in data
+    assert len(data["posts"]) == 3
+    # Check that each post has the required fields
+    for post in data["posts"]:
+        assert "id" in post
+        assert "episode_id" in post
+        assert "episode_name" in post
+        assert "language" in post
+        assert "platform" in post
+        assert "status" in post
+        assert "scheduled_for" in post
     with Session(eng) as s:
         posts = s.query(ScheduledPost).all()
         # All should have new Dec 15 slots
@@ -393,7 +405,9 @@ def test_reschedule_episode_skips_non_scheduled_posts(client):
     _create_post(eng, lang="en", status="published")
     _create_post(eng, lang="uk", status="scheduled")
     resp = c.patch("/schedule/episode/1", json={"date": "2025-12-15"})
-    assert resp.json()["moved"] == 1  # only the scheduled one
+    data = resp.json()
+    assert data["moved"] == 1  # only the scheduled one
+    assert len(data["posts"]) == 1  # and posts list should have 1 item
 
 
 def test_reschedule_episode_no_posts_returns_404(client):
