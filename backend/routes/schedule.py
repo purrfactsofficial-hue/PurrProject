@@ -123,3 +123,65 @@ def create_schedule(body: CreateScheduleBody, db: Session = Depends(get_db)):  #
     db.commit()
 
     return {"created": len(posts), "errors": errors, "warnings": warnings}
+
+
+class PostOut(BaseModel):
+    id: int
+    episode_id: int
+    episode_name: str
+    language: str
+    platform: str
+    status: str
+    scheduled_for: str
+    platform_post_id: str | None
+    error_message: str | None
+
+
+@router.get("/queue")
+def get_queue(db: Session = Depends(get_db)):  # noqa: B008
+    rows = (
+        db.query(ScheduledPost, Episode.topic)
+        .join(Episode, Episode.id == ScheduledPost.episode_id)
+        .order_by(ScheduledPost.scheduled_for)
+        .all()
+    )
+    items = [
+        PostOut(
+            id=p.id,
+            episode_id=p.episode_id,
+            episode_name=topic,
+            language=p.language,
+            platform=p.platform,
+            status=p.status,
+            scheduled_for=p.scheduled_for.isoformat() + "Z",
+            platform_post_id=p.platform_post_id,
+            error_message=p.error_message,
+        )
+        for p, topic in rows
+    ]
+    return {"items": [i.model_dump() for i in items]}
+
+
+@router.post("/{post_id}/retry")
+def retry_post(post_id: int, db: Session = Depends(get_db)):  # noqa: B008
+    post = db.query(ScheduledPost).filter(ScheduledPost.id == post_id).first()
+    if not post:
+        raise HTTPException(404, "Post not found")
+    if post.status != "failed":
+        raise HTTPException(409, f"Only failed posts can be retried (status: {post.status})")
+    post.status = "scheduled"
+    post.error_message = None
+    db.commit()
+    return {"status": "scheduled"}
+
+
+@router.delete("/{post_id}")
+def cancel_post(post_id: int, db: Session = Depends(get_db)):  # noqa: B008
+    post = db.query(ScheduledPost).filter(ScheduledPost.id == post_id).first()
+    if not post:
+        raise HTTPException(404, "Post not found")
+    if post.status == "published":
+        raise HTTPException(409, "Cannot cancel a published post")
+    post.status = "cancelled"
+    db.commit()
+    return {"status": "cancelled"}

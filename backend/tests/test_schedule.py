@@ -240,3 +240,101 @@ def test_create_schedule_english_only_creates_correct_count(client):
     with Session(eng) as s:
         posts = s.query(ScheduledPost).all()
         assert all(p.language == "en" for p in posts)
+
+
+# ── GET /queue ────────────────────────────────────────────────────────────────
+
+
+def _create_post(
+    eng, episode_id=1, lang="en", plat="youtube", status="scheduled", scheduled_for=None
+):
+    from datetime import datetime
+
+    sf = scheduled_for or datetime(2025, 7, 5, 0, 0, 0)
+    with Session(eng) as s:
+        p = ScheduledPost(
+            episode_id=episode_id, language=lang, platform=plat, status=status, scheduled_for=sf
+        )
+        s.add(p)
+        s.commit()
+        return p.id
+
+
+def test_get_queue_returns_items_sorted_by_scheduled_for(client):
+    c, eng = client
+    _create_post(eng, scheduled_for=datetime(2025, 7, 5, 0, 0, 0))
+    _create_post(eng, lang="uk", scheduled_for=datetime(2025, 7, 4, 17, 0, 0))
+    resp = c.get("/schedule/queue")
+    assert resp.status_code == 200
+    items = resp.json()["items"]
+    assert len(items) == 2
+    # uk slot (17:00) comes before en slot (next day 00:00)
+    assert items[0]["language"] == "uk"
+    assert items[1]["language"] == "en"
+
+
+def test_get_queue_includes_episode_name(client):
+    c, eng = client
+    _create_post(eng)
+    resp = c.get("/schedule/queue")
+    items = resp.json()["items"]
+    assert items[0]["episode_name"] == "Pizza"
+
+
+def test_get_queue_empty_returns_empty_list(client):
+    c, _ = client
+    resp = c.get("/schedule/queue")
+    assert resp.status_code == 200
+    assert resp.json()["items"] == []
+
+
+# ── DELETE /{id} ──────────────────────────────────────────────────────────────
+
+
+def test_cancel_scheduled_post(client):
+    c, eng = client
+    pid = _create_post(eng)
+    resp = c.delete(f"/schedule/{pid}")
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "cancelled"
+    with Session(eng) as s:
+        assert s.query(ScheduledPost).get(pid).status == "cancelled"
+
+
+def test_cancel_published_post_returns_409(client):
+    c, eng = client
+    pid = _create_post(eng, status="published")
+    resp = c.delete(f"/schedule/{pid}")
+    assert resp.status_code == 409
+
+
+def test_cancel_nonexistent_post_returns_404(client):
+    c, _ = client
+    resp = c.delete("/schedule/9999")
+    assert resp.status_code == 404
+
+
+# ── POST /{id}/retry ──────────────────────────────────────────────────────────
+
+
+def test_retry_failed_post_resets_to_scheduled(client):
+    c, eng = client
+    pid = _create_post(eng, status="failed")
+    resp = c.post(f"/schedule/{pid}/retry")
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "scheduled"
+    with Session(eng) as s:
+        assert s.query(ScheduledPost).get(pid).status == "scheduled"
+
+
+def test_retry_non_failed_post_returns_409(client):
+    c, eng = client
+    pid = _create_post(eng, status="scheduled")
+    resp = c.post(f"/schedule/{pid}/retry")
+    assert resp.status_code == 409
+
+
+def test_retry_nonexistent_post_returns_404(client):
+    c, _ = client
+    resp = c.post("/schedule/9999/retry")
+    assert resp.status_code == 404
