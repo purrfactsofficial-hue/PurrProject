@@ -37,6 +37,8 @@ describe('App routing', () => {
     // Episode page calls getVideo + getCaptions.
     api.getVideo.mockResolvedValue(episode)
     api.getCaptions.mockResolvedValue([])
+    // Queue page calls getQueue on mount.
+    api.getQueue.mockResolvedValue({ items: [] })
   })
 
   // ─── nav ──────────────────────────────────────────────────────────────────────
@@ -69,10 +71,10 @@ describe('App routing', () => {
 
   // ─── /queue ───────────────────────────────────────────────────────────────────
 
-  it('renders Queue placeholder at /queue', () => {
+  it('renders Queue page at /queue', () => {
     renderApp('/queue')
-    // "Queue — Phase 3" is the exact stub text, distinct from the nav link
-    expect(screen.getByText('Queue — Phase 3')).toBeInTheDocument()
+    // "Operations" eyebrow is unique to the Queue page (not in nav)
+    expect(screen.getByText('Operations')).toBeInTheDocument()
   })
 
   // ─── /dashboard ───────────────────────────────────────────────────────────────
