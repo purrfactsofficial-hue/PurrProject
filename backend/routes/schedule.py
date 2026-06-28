@@ -31,8 +31,8 @@ def compute_utc_slot(post_date: Date, lang: str) -> datetime:
 
 
 @router.get("/slots")
-def get_slots(date: str = Query(...)):
-    post_date = Date.fromisoformat(date)
+def get_slots(episode_id: int = Query(...), date: Date = Query(...)):  # noqa: B008
+    post_date = date
     slots = []
     for lang, (_hour, _minute, _tz_name) in POSTING_SLOTS.items():
         utc_dt = compute_utc_slot(post_date, lang)

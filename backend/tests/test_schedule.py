@@ -96,7 +96,7 @@ def test_compute_utc_slot_winter_fr():
 
 def test_get_slots_returns_four_entries(client):
     c, _ = client
-    resp = c.get("/schedule/slots?date=2025-07-04")
+    resp = c.get("/schedule/slots?episode_id=1&date=2025-07-04")
     assert resp.status_code == 200
     data = resp.json()
     assert len(data["slots"]) == 4
@@ -106,14 +106,14 @@ def test_get_slots_returns_four_entries(client):
 
 def test_get_slots_audience_time_always_8pm(client):
     c, _ = client
-    resp = c.get("/schedule/slots?date=2025-07-04")
+    resp = c.get("/schedule/slots?episode_id=1&date=2025-07-04")
     for slot in resp.json()["slots"]:
         assert slot["audience_time"] == "8:00 PM"
 
 
 def test_get_slots_your_time_is_pacific(client):
     c, _ = client
-    resp = c.get("/schedule/slots?date=2025-07-04")
+    resp = c.get("/schedule/slots?episode_id=1&date=2025-07-04")
     for slot in resp.json()["slots"]:
         assert slot["your_tz"] == "Pacific"
         # Your time must be a valid time string like "10:00 AM" or "5:00 PM"
