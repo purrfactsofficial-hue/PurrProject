@@ -338,3 +338,65 @@ def test_retry_nonexistent_post_returns_404(client):
     c, _ = client
     resp = c.post("/schedule/9999/retry")
     assert resp.status_code == 404
+
+
+# ── PATCH /{id} ───────────────────────────────────────────────────────────────
+
+
+def test_reschedule_post_updates_scheduled_for(client):
+    c, eng = client
+    pid = _create_post(eng, lang="en", scheduled_for=datetime(2025, 7, 5, 0, 0, 0))
+    resp = c.patch(f"/schedule/{pid}", json={"date": "2025-08-01"})
+    assert resp.status_code == 200
+    with Session(eng) as s:
+        post = s.query(ScheduledPost).get(pid)
+        # Aug 1 — EDT: 8 PM Eastern = 00:00 UTC Aug 2
+        assert post.scheduled_for == datetime(2025, 8, 2, 0, 0, 0)
+
+
+def test_reschedule_published_post_returns_409(client):
+    c, eng = client
+    pid = _create_post(eng, status="published")
+    resp = c.patch(f"/schedule/{pid}", json={"date": "2025-08-01"})
+    assert resp.status_code == 409
+
+
+def test_reschedule_nonexistent_post_returns_404(client):
+    c, _ = client
+    resp = c.patch("/schedule/9999", json={"date": "2025-08-01"})
+    assert resp.status_code == 404
+
+
+# ── PATCH /episode/{id} ───────────────────────────────────────────────────────
+
+
+def test_reschedule_episode_moves_all_scheduled_posts(client):
+    c, eng = client
+    # Create 3 scheduled posts for episode 1 across different languages
+    _create_post(eng, lang="en", scheduled_for=datetime(2025, 7, 5, 0, 0, 0))
+    _create_post(eng, lang="uk", plat="tiktok", scheduled_for=datetime(2025, 7, 4, 17, 0, 0))
+    _create_post(eng, lang="fr", plat="instagram", scheduled_for=datetime(2025, 7, 4, 18, 0, 0))
+    resp = c.patch("/schedule/episode/1", json={"date": "2025-12-15"})
+    assert resp.status_code == 200
+    assert resp.json()["moved"] == 3
+    with Session(eng) as s:
+        posts = s.query(ScheduledPost).all()
+        # All should have new Dec 15 slots
+        slots = {p.scheduled_for for p in posts}
+        assert datetime(2025, 12, 16, 1, 0, 0) in slots  # EN winter
+        assert datetime(2025, 12, 15, 18, 0, 0) in slots  # UK winter
+        assert datetime(2025, 12, 15, 19, 0, 0) in slots  # FR winter
+
+
+def test_reschedule_episode_skips_non_scheduled_posts(client):
+    c, eng = client
+    _create_post(eng, lang="en", status="published")
+    _create_post(eng, lang="uk", status="scheduled")
+    resp = c.patch("/schedule/episode/1", json={"date": "2025-12-15"})
+    assert resp.json()["moved"] == 1  # only the scheduled one
+
+
+def test_reschedule_episode_no_posts_returns_404(client):
+    c, _ = client
+    resp = c.patch("/schedule/episode/1", json={"date": "2025-12-15"})
+    assert resp.status_code == 404

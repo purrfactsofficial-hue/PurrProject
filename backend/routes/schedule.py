@@ -175,6 +175,47 @@ def retry_post(post_id: int, db: Session = Depends(get_db)):  # noqa: B008
     return {"status": "scheduled"}
 
 
+class RescheduleBody(BaseModel):
+    date: str
+
+
+@router.patch("/episode/{episode_id}")
+def reschedule_episode(episode_id: int, body: RescheduleBody, db: Session = Depends(get_db)):  # noqa: B008
+    posts = db.query(ScheduledPost).filter_by(episode_id=episode_id, status="scheduled").all()
+    if not posts:
+        raise HTTPException(404, "No scheduled posts found for this episode")
+    new_date = Date.fromisoformat(body.date)
+    for p in posts:
+        p.scheduled_for = compute_utc_slot(new_date, p.language)
+    db.commit()
+    return {"moved": len(posts)}
+
+
+@router.patch("/{post_id}")
+def reschedule_post(post_id: int, body: RescheduleBody, db: Session = Depends(get_db)):  # noqa: B008
+    post = db.query(ScheduledPost).filter(ScheduledPost.id == post_id).first()
+    if not post:
+        raise HTTPException(404, "Post not found")
+    if post.status == "published":
+        raise HTTPException(409, "Cannot reschedule a published post")
+    new_date = Date.fromisoformat(body.date)
+    post.scheduled_for = compute_utc_slot(new_date, post.language)
+    db.commit()
+    db.refresh(post)
+    episode = db.query(Episode).filter(Episode.id == post.episode_id).first()
+    return PostOut(
+        id=post.id,
+        episode_id=post.episode_id,
+        episode_name=episode.topic if episode else "Unknown",
+        language=post.language,
+        platform=post.platform,
+        status=post.status,
+        scheduled_for=post.scheduled_for.isoformat() + "Z",
+        platform_post_id=post.platform_post_id,
+        error_message=post.error_message,
+    ).model_dump()
+
+
 @router.delete("/{post_id}")
 def cancel_post(post_id: int, db: Session = Depends(get_db)):  # noqa: B008
     post = db.query(ScheduledPost).filter(ScheduledPost.id == post_id).first()
