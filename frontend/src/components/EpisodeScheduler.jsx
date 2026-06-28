@@ -42,7 +42,7 @@ export default function EpisodeScheduler({ episodeId, captions, onScheduled }) {
     setSlots([])
     if (!val) return
     try {
-      const data = await getSlots(val)
+      const data = await getSlots(episodeId, val)
       setSlots(data.slots)
     } catch {
       // preview is best-effort
@@ -55,12 +55,7 @@ export default function EpisodeScheduler({ episodeId, captions, onScheduled }) {
     setError(null)
     setResult(null)
     try {
-      const data = await createSchedule({
-        episodeId,
-        date,
-        languages: [...selectedLangs],
-        platforms: [...selectedPlatforms],
-      })
+      const data = await createSchedule(episodeId, date, [...selectedLangs], [...selectedPlatforms])
       setResult(data)
       if (data.created > 0) onScheduled()
     } catch (err) {

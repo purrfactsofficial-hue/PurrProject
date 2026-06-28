@@ -99,7 +99,7 @@ describe('EpisodeScheduler', () => {
     renderScheduler()
     const dateInput = screen.getByLabelText(/date/i)
     await user.type(dateInput, '2025-07-04')
-    await waitFor(() => expect(api.getSlots).toHaveBeenCalledWith('2025-07-04'))
+    await waitFor(() => expect(api.getSlots).toHaveBeenCalledWith(1, '2025-07-04'))
   })
 
   it('slot preview renders audience and pacific times', async () => {
@@ -120,12 +120,10 @@ describe('EpisodeScheduler', () => {
     await user.click(screen.getByRole('button', { name: /schedule selected/i }))
     await waitFor(() =>
       expect(api.createSchedule).toHaveBeenCalledWith(
-        expect.objectContaining({
-          episodeId: 1,
-          date: '2025-07-04',
-          languages: expect.arrayContaining(['en', 'uk', 'zh', 'fr']),
-          platforms: expect.arrayContaining(['youtube', 'tiktok', 'instagram']),
-        })
+        1,
+        '2025-07-04',
+        expect.arrayContaining(['en', 'uk', 'zh', 'fr']),
+        expect.arrayContaining(['youtube', 'tiktok', 'instagram'])
       )
     )
   })

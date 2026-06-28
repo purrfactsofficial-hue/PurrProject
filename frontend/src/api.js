@@ -62,14 +62,14 @@ export function saveCaption({ videoId, language, platform, title = null, caption
   return post('/captions/save', { video_id: videoId, language, platform, title, caption, hashtags })
 }
 
-export function getSlots(date) {
-  return request(`/schedule/slots?date=${date}`)
+export function getSlots(episodeId, date) {
+  return request(`/schedule/slots?episode_id=${episodeId}&date=${date}`)
 }
 
-export function createSchedule({ episodeId, date, languages, platforms }) {
+export function createSchedule(episodeId, postDate, languages, platforms) {
   return post('/schedule/create', {
     episode_id: episodeId,
-    post_date: date,
+    post_date: postDate,
     languages,
     platforms,
   })
