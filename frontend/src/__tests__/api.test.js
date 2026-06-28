@@ -184,19 +184,14 @@ describe('schedule API', () => {
     it('calls POST /api/schedule/create with episodeId as episode_id', async () => {
       const responseData = { created: 4, warnings: [], errors: [] }
       vi.stubGlobal('fetch', makeFetch(true, responseData))
-      const result = await createSchedule({
-        episodeId: 1,
-        date: '2025-07-04',
-        languages: ['en'],
-        platforms: ['youtube'],
-      })
+      const result = await createSchedule(1, '2025-07-04', ['en'], ['youtube'])
       expect(result).toEqual(responseData)
       const [url, opts] = fetch.mock.calls[0]
       expect(url).toBe('/api/schedule/create')
       expect(opts.method).toBe('POST')
       const body = JSON.parse(opts.body)
       expect(body.episode_id).toBe(1)
-      expect(body.date).toBe('2025-07-04')
+      expect(body.post_date).toBe('2025-07-04')
     })
   })
 
@@ -263,12 +258,12 @@ describe('schedule API', () => {
   })
 
   describe('getSlots', () => {
-    it('calls GET /api/schedule/slots with date param', async () => {
+    it('calls GET /api/schedule/slots with episode_id and date params', async () => {
       const responseData = { slots: [] }
       vi.stubGlobal('fetch', makeFetch(true, responseData))
-      const result = await getSlots('2025-07-04')
+      const result = await getSlots(1, '2025-07-04')
       expect(result).toEqual(responseData)
-      expect(fetch).toHaveBeenCalledWith('/api/schedule/slots?date=2025-07-04')
+      expect(fetch).toHaveBeenCalledWith('/api/schedule/slots?episode_id=1&date=2025-07-04')
     })
   })
 })
