@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import UTC, date, datetime, timedelta
 
 import pytest
 from fastapi import FastAPI
@@ -414,3 +414,61 @@ def test_reschedule_episode_no_posts_returns_404(client):
     c, _ = client
     resp = c.patch("/schedule/episode/1", json={"date": "2025-12-15"})
     assert resp.status_code == 404
+
+
+# ── check_and_post ────────────────────────────────────────────────────────────
+
+
+def _make_engine_with_past_post():
+    eng = create_engine(TEST_DB, connect_args={"check_same_thread": False}, poolclass=StaticPool)
+    Base.metadata.create_all(eng)
+    past = datetime.now(UTC).replace(tzinfo=None) - timedelta(minutes=2)
+    with Session(eng) as s:
+        s.add(Episode(id=10, number=10, topic="Test", slug="test-ep", category="space"))
+        s.add(
+            ScheduledPost(
+                episode_id=10,
+                language="en",
+                platform="youtube",
+                status="scheduled",
+                scheduled_for=past,
+            )
+        )
+        s.commit()
+    return eng
+
+
+def test_check_and_post_publishes_due_post_in_dev_mode():
+    from scheduler import check_and_post
+
+    eng = _make_engine_with_past_post()
+    check_and_post(engine=eng, dev_mode=True)
+    with Session(eng) as s:
+        post = s.query(ScheduledPost).first()
+        assert post.status == "published"
+        assert post.platform_post_id is not None
+        assert post.platform_post_id.startswith("dev-")
+
+
+def test_check_and_post_does_not_publish_future_post():
+    from scheduler import check_and_post
+
+    eng = create_engine(TEST_DB, connect_args={"check_same_thread": False}, poolclass=StaticPool)
+    Base.metadata.create_all(eng)
+    future = datetime(2099, 1, 1, 0, 0, 0)
+    with Session(eng) as s:
+        s.add(Episode(id=11, number=11, topic="Future", slug="future", category="space"))
+        s.add(
+            ScheduledPost(
+                episode_id=11,
+                language="en",
+                platform="youtube",
+                status="scheduled",
+                scheduled_for=future,
+            )
+        )
+        s.commit()
+    check_and_post(engine=eng, dev_mode=True)
+    with Session(eng) as s:
+        post = s.query(ScheduledPost).first()
+        assert post.status == "scheduled"
