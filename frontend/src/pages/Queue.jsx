@@ -44,12 +44,10 @@ function groupByDate(items) {
 function PostRow({ post, onAction }) {
   const [rescheduleDate, setRescheduleDate] = useState('')
 
-  const handleReschedule = async (e) => {
-    const val = e.target.value
-    setRescheduleDate(val)
-    if (!val) return
+  const handleRescheduleClick = async () => {
+    if (!rescheduleDate) return
     try {
-      await reschedulePost(post.id, val)
+      await reschedulePost(post.id, rescheduleDate)
       onAction()
     } catch {
       // ignore — queue refresh will show current state
@@ -100,8 +98,15 @@ function PostRow({ post, onAction }) {
                 aria-label="Reschedule date"
                 className="reschedule-input"
                 value={rescheduleDate}
-                onChange={handleReschedule}
+                onChange={(e) => setRescheduleDate(e.target.value)}
               />
+              <button
+                className="action-btn"
+                onClick={handleRescheduleClick}
+                disabled={!rescheduleDate}
+              >
+                Reschedule
+              </button>
               <button className="action-btn danger" onClick={handleCancel}>
                 Cancel
               </button>

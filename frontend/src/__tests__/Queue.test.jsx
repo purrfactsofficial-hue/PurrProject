@@ -1,6 +1,6 @@
 import { render, screen, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 
 vi.mock('../api.js')
@@ -59,6 +59,10 @@ describe('Queue', () => {
       ...POST_SCHEDULED,
       scheduled_for: '2025-08-02T00:00:00Z',
     })
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   // ── rendering ──────────────────────────────────────────────────────────────
@@ -144,14 +148,13 @@ describe('Queue', () => {
 
   // ── reschedule action ──────────────────────────────────────────────────────
 
-  it('reschedule date input calls reschedulePost', async () => {
+  it('reschedule date input and button calls reschedulePost', async () => {
     const user = userEvent.setup()
     api.getQueue.mockResolvedValue({ items: [POST_SCHEDULED] })
     renderQueue()
     await waitFor(() => expect(screen.getByLabelText(/reschedule/i)).toBeInTheDocument())
     await user.type(screen.getByLabelText(/reschedule/i), '2025-08-01')
-    // Trigger the change — find and blur
-    screen.getByLabelText(/reschedule/i).dispatchEvent(new Event('change', { bubbles: true }))
+    await user.click(screen.getByRole('button', { name: /reschedule/i }))
     await waitFor(() =>
       expect(api.reschedulePost).toHaveBeenCalledWith(POST_SCHEDULED.id, '2025-08-01')
     )
