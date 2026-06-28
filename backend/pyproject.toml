@@ -14,8 +14,8 @@ indent-style = "space"
 omit = [
   "venv/*",
   "tests/*",
+  "scripts/*",
   "scheduler.py",
-  "routes/schedule.py",
   "routes/analytics.py",
 ]
 

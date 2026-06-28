@@ -17,3 +17,10 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+POSTING_SLOTS: dict[str, tuple[int, int, str]] = {
+    "en": (20, 0, "America/New_York"),
+    "uk": (20, 0, "Europe/Kyiv"),
+    "zh": (20, 0, "Asia/Hong_Kong"),
+    "fr": (20, 0, "Europe/Paris"),
+}
