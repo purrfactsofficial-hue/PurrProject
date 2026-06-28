@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getCaptions, getVideo, importCaptions } from '../api.js'
 import CaptionGrid from '../components/CaptionGrid.jsx'
+import EpisodeScheduler from '../components/EpisodeScheduler.jsx'
 import './Episode.css'
 
 export default function Episode() {
@@ -91,9 +92,15 @@ export default function Episode() {
       <h2 className="ep-section-title">Publishing descriptions</h2>
       <CaptionGrid videoId={numericId} captions={captions} />
 
+      <EpisodeScheduler
+        episodeId={numericId}
+        captions={captions}
+        onScheduled={() => navigate('/queue')}
+      />
+
       <div className="ep-footer">
         <button className="save-btn" onClick={() => navigate('/queue')}>
-          Save &amp; continue to scheduling →
+          View Queue →
         </button>
       </div>
     </div>

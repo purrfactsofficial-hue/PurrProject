@@ -235,9 +235,9 @@ describe('Episode', () => {
     expect(screen.getByRole('button', { name: /library/i })).toBeInTheDocument()
   })
 
-  it('renders the save & continue button', async () => {
+  it('renders the View Queue button', async () => {
     renderEpisode()
     await waitFor(() => screen.getByText('Pizza'))
-    expect(screen.getByRole('button', { name: /save.*continue/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /view queue/i })).toBeInTheDocument()
   })
 })
