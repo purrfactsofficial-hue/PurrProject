@@ -1,9 +1,16 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
+  cancelPost,
+  createSchedule,
   getCaptions,
+  getQueue,
+  getSlots,
   getVideo,
   importCaptions,
   listVideos,
+  rescheduleEpisode,
+  reschedulePost,
+  retryPost,
   saveCaption,
   scanVideos,
 } from '../api.js'
@@ -167,5 +174,101 @@ describe('saveCaption', () => {
     await expect(
       saveCaption({ videoId: 1, language: 'en', platform: 'youtube', caption: 'C', hashtags: [] })
     ).rejects.toThrow('500')
+  })
+})
+
+// ─── schedule API ────────────────────────────────────────────────────────────
+
+describe('schedule API', () => {
+  describe('createSchedule', () => {
+    it('calls POST /api/schedule/create with episodeId as episode_id', async () => {
+      const responseData = { created: 4, warnings: [], errors: [] }
+      vi.stubGlobal('fetch', makeFetch(true, responseData))
+      const result = await createSchedule({
+        episodeId: 1,
+        date: '2025-07-04',
+        languages: ['en'],
+        platforms: ['youtube'],
+      })
+      expect(result).toEqual(responseData)
+      const [url, opts] = fetch.mock.calls[0]
+      expect(url).toBe('/api/schedule/create')
+      expect(opts.method).toBe('POST')
+      const body = JSON.parse(opts.body)
+      expect(body.episode_id).toBe(1)
+      expect(body.date).toBe('2025-07-04')
+    })
+  })
+
+  describe('getQueue', () => {
+    it('calls GET /api/schedule/queue and returns items', async () => {
+      const responseData = { items: [] }
+      vi.stubGlobal('fetch', makeFetch(true, responseData))
+      const result = await getQueue()
+      expect(result).toEqual(responseData)
+      expect(fetch).toHaveBeenCalledWith('/api/schedule/queue')
+    })
+  })
+
+  describe('cancelPost', () => {
+    it('calls DELETE /api/schedule/:id', async () => {
+      const responseData = { status: 'cancelled' }
+      vi.stubGlobal('fetch', makeFetch(true, responseData))
+      const result = await cancelPost(7)
+      expect(result).toEqual(responseData)
+      const [url, opts] = fetch.mock.calls[0]
+      expect(url).toBe('/api/schedule/7')
+      expect(opts.method).toBe('DELETE')
+    })
+  })
+
+  describe('reschedulePost', () => {
+    it('calls PATCH /api/schedule/:id with date in body', async () => {
+      const responseData = { id: 7 }
+      vi.stubGlobal('fetch', makeFetch(true, responseData))
+      const result = await reschedulePost(7, '2025-08-01')
+      expect(result).toEqual(responseData)
+      const [url, opts] = fetch.mock.calls[0]
+      expect(url).toBe('/api/schedule/7')
+      expect(opts.method).toBe('PATCH')
+      const body = JSON.parse(opts.body)
+      expect(body.date).toBe('2025-08-01')
+    })
+  })
+
+  describe('rescheduleEpisode', () => {
+    it('calls PATCH /api/schedule/episode/:id with date in body', async () => {
+      const responseData = { id: 5 }
+      vi.stubGlobal('fetch', makeFetch(true, responseData))
+      const result = await rescheduleEpisode(5, '2025-09-15')
+      expect(result).toEqual(responseData)
+      const [url, opts] = fetch.mock.calls[0]
+      expect(url).toBe('/api/schedule/episode/5')
+      expect(opts.method).toBe('PATCH')
+      const body = JSON.parse(opts.body)
+      expect(body.date).toBe('2025-09-15')
+    })
+  })
+
+  describe('retryPost', () => {
+    it('calls POST /api/schedule/:id/retry', async () => {
+      const responseData = { status: 'scheduled' }
+      vi.stubGlobal('fetch', makeFetch(true, responseData))
+      const result = await retryPost(5)
+      expect(result).toEqual(responseData)
+      const [url, opts] = fetch.mock.calls[0]
+      expect(url).toBe('/api/schedule/5/retry')
+      expect(opts.method).toBe('POST')
+    })
+  })
+
+  describe('getSlots', () => {
+    it('calls GET /api/schedule/slots with date param', async () => {
+      const responseData = { slots: [] }
+      vi.stubGlobal('fetch', makeFetch(true, responseData))
+      const result = await getSlots('2025-07-04')
+      expect(result).toEqual(responseData)
+      expect(fetch).toHaveBeenCalledWith('/api/schedule/slots?date=2025-07-04')
+    })
   })
 })
