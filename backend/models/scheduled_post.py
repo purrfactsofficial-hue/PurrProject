@@ -27,6 +27,8 @@ class ScheduledPost(Base):
     scheduled_for = Column(DateTime, nullable=False)
     platform_post_id = Column(Text)
     error_message = Column(Text)
+    retry_count = Column(Integer, nullable=False, default=0)
+    published_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(UTC))
     updated_at = Column(
         DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC)

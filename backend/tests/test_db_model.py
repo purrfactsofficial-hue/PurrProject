@@ -141,3 +141,24 @@ def test_scheduled_post_invalid_status_rejected():
         )
         with pytest.raises(IntegrityError):
             s.commit()
+
+
+def test_scheduled_post_has_retry_count_and_published_at():
+    from datetime import timedelta
+
+    eng = _engine()
+    past = datetime.now(UTC).replace(tzinfo=None) - timedelta(minutes=2)
+    with Session(eng) as s:
+        ep = _episode(s)
+        post = ScheduledPost(
+            episode_id=ep.id,
+            language="en",
+            platform="youtube",
+            status="scheduled",
+            scheduled_for=past,
+        )
+        s.add(post)
+        s.commit()
+        s.refresh(post)
+        assert post.retry_count == 0
+        assert post.published_at is None
