@@ -94,6 +94,14 @@ describe('EpisodeScheduler', () => {
     expect(enBtn.className).not.toMatch(/\bon\b/)
   })
 
+  it('clicking a platform toggle deselects it', async () => {
+    const user = userEvent.setup()
+    renderScheduler()
+    const ytBtn = screen.getByRole('button', { name: /YouTube/i })
+    await user.click(ytBtn)
+    expect(ytBtn.className).not.toMatch(/\bon\b/)
+  })
+
   it('date change triggers getSlots call', async () => {
     const user = userEvent.setup()
     renderScheduler()
