@@ -33,6 +33,22 @@ def test_tunnel_context_yields_public_url(mock_popen):
 
 
 @patch("services.public_url.subprocess.Popen")
+def test_tunnel_context_uses_language_in_url(mock_popen):
+    from services.public_url import public_url_context
+
+    proc = MagicMock()
+    proc.stderr = iter(
+        [
+            "https://xyz.trycloudflare.com quick Tunnel ready!\n",
+        ]
+    )
+    mock_popen.return_value = proc
+
+    with public_url_context(Path("/video.mp4"), 5, _make_settings("tunnel"), language="fr") as url:
+        assert url == "https://xyz.trycloudflare.com/media/5/fr.mp4"
+
+
+@patch("services.public_url.subprocess.Popen")
 def test_tunnel_context_raises_if_no_url(mock_popen):
     from services.public_url import public_url_context
 

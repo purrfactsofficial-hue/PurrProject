@@ -13,7 +13,7 @@ def public_url_context(
 ) -> Generator[str, None, None]:
     """Yield a public HTTPS URL for the given video, cleaning up on exit."""
     if settings.ig_public_url_mode == "r2":
-        with _r2_context(video_path, episode_id, settings) as url:
+        with _r2_context(video_path, episode_id, settings, language) as url:
             yield url
     else:
         with _tunnel_context(video_path, episode_id, language) as url:
@@ -43,5 +43,8 @@ def _tunnel_context(video_path: Path, episode_id: int, language: str) -> Generat
 
 
 @contextmanager
-def _r2_context(video_path: Path, episode_id: int, settings) -> Generator[str, None, None]:
+def _r2_context(
+    video_path: Path, episode_id: int, settings, language: str
+) -> Generator[str, None, None]:
     raise NotImplementedError("R2 mode is not yet implemented")
+    yield ""  # unreachable; satisfies type checker

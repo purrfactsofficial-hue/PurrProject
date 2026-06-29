@@ -8,9 +8,13 @@ from database import Episode, Video, get_db
 
 router = APIRouter(prefix="/media", tags=["media"])
 
+_VALID_LANGUAGES = {"en", "uk", "zh", "fr"}
+
 
 @router.get("/{episode_id}/{language}.mp4")
 def stream_episode_media(episode_id: int, language: str, db: Session = Depends(get_db)):  # noqa: B008
+    if language not in _VALID_LANGUAGES:
+        raise HTTPException(400, f"Invalid language: {language}")
     episode = db.query(Episode).filter(Episode.id == episode_id).first()
     if not episode:
         raise HTTPException(404, "Episode not found")
