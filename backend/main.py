@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from config import settings
 from database import create_tables
 from routes import analytics, captions, schedule, videos
+from routes.media import router as media_router
 from scheduler import start_scheduler, stop_scheduler
 
 
@@ -32,6 +33,7 @@ app.include_router(videos.router)
 app.include_router(captions.router)
 app.include_router(schedule.router)
 app.include_router(analytics.router)
+app.include_router(media_router)
 
 app.mount("/thumbs", StaticFiles(directory=str(settings.thumbs_dir)), name="thumbs")
 
