@@ -36,7 +36,7 @@ def _dispatch(post, caption, video_path: Path, settings) -> str:
         from services.instagram import publish_instagram
         from services.public_url import public_url_context
 
-        with public_url_context(video_path, post.episode_id, settings) as public_url:
+        with public_url_context(video_path, post.episode_id, settings, post.language) as public_url:
             return publish_instagram(caption, public_url, settings, post.language)
     else:
         raise ValueError(f"Unknown platform: {post.platform}")

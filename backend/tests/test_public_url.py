@@ -26,7 +26,7 @@ def test_tunnel_context_yields_public_url(mock_popen):
     mock_popen.return_value = proc
 
     with public_url_context(Path("/video.mp4"), 5, _make_settings("tunnel")) as url:
-        assert url == "https://abc123.trycloudflare.com/media/5.mp4"
+        assert url == "https://abc123.trycloudflare.com/media/5/en.mp4"
 
     proc.terminate.assert_called_once()
     proc.wait.assert_called_once()

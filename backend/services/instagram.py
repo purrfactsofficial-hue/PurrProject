@@ -22,7 +22,12 @@ def publish_instagram(caption, public_url: str, settings, lang: str) -> str:
             "access_token": token,
         },
     )
-    container_resp.raise_for_status()
+    try:
+        container_resp.raise_for_status()
+    except requests.HTTPError:
+        raise RuntimeError(
+            f"Instagram container creation failed ({container_resp.status_code})"
+        ) from None
     container_id = container_resp.json()["id"]
 
     for _ in range(_MAX_POLLS):
@@ -31,7 +36,12 @@ def publish_instagram(caption, public_url: str, settings, lang: str) -> str:
             f"{_GRAPH_BASE}/{container_id}",
             params={"fields": "status_code", "access_token": token},
         )
-        status_resp.raise_for_status()
+        try:
+            status_resp.raise_for_status()
+        except requests.HTTPError:
+            raise RuntimeError(
+                f"Instagram status poll failed ({status_resp.status_code})"
+            ) from None
         if status_resp.json().get("status_code") == "FINISHED":
             break
     else:
@@ -41,5 +51,8 @@ def publish_instagram(caption, public_url: str, settings, lang: str) -> str:
         f"{_GRAPH_BASE}/{ig_user_id}/media_publish",
         params={"creation_id": container_id, "access_token": token},
     )
-    publish_resp.raise_for_status()
+    try:
+        publish_resp.raise_for_status()
+    except requests.HTTPError:
+        raise RuntimeError(f"Instagram publish failed ({publish_resp.status_code})") from None
     return publish_resp.json()["id"]
