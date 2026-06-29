@@ -146,6 +146,18 @@ describe('Queue', () => {
     await waitFor(() => expect(screen.getByText('API timeout')).toBeInTheDocument())
   })
 
+  // ── action error display ───────────────────────────────────────────────────
+
+  it('shows error when cancel fails', async () => {
+    const user = userEvent.setup()
+    api.getQueue.mockResolvedValue({ items: [POST_SCHEDULED] })
+    api.cancelPost.mockRejectedValueOnce(new Error('Server error'))
+    renderQueue()
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument())
+    await user.click(screen.getByRole('button', { name: 'Cancel' }))
+    await waitFor(() => expect(screen.getByText('Server error')).toBeInTheDocument())
+  })
+
   // ── reschedule action ──────────────────────────────────────────────────────
 
   it('reschedule date input and button calls reschedulePost', async () => {

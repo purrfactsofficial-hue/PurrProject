@@ -191,7 +191,7 @@ describe('schedule API', () => {
       expect(opts.method).toBe('POST')
       const body = JSON.parse(opts.body)
       expect(body.episode_id).toBe(1)
-      expect(body.post_date).toBe('2025-07-04')
+      expect(body.date).toBe('2025-07-04')
       expect(body.languages).toEqual(['en'])
       expect(body.platforms).toEqual(['youtube'])
     })

@@ -69,7 +69,7 @@ export function getSlots(episodeId, date) {
 export function createSchedule(episodeId, postDate, languages, platforms) {
   return post('/schedule/create', {
     episode_id: episodeId,
-    post_date: postDate,
+    date: postDate,
     languages,
     platforms,
   })

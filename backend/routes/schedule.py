@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from config import POSTING_SLOTS
+from config import POSTING_SLOTS, USER_TZ
 from database import Caption, Episode, ScheduledPost, get_db
 
 router = APIRouter(prefix="/schedule", tags=["schedule"])
@@ -17,7 +17,6 @@ _TZ_LABELS: dict[str, str] = {
     "zh": "Hong Kong",
     "fr": "Paris",
 }
-_USER_TZ = "America/Los_Angeles"
 
 
 def compute_utc_slot(post_date: Date, lang: str) -> datetime:
@@ -34,12 +33,15 @@ def compute_utc_slot(post_date: Date, lang: str) -> datetime:
 
 
 @router.get("/slots")
-def get_slots(episode_id: int = Query(...), date: Date = Query(...)):  # noqa: B008
+def get_slots(episode_id: int = Query(...), date: Date = Query(...), db: Session = Depends(get_db)):  # noqa: B008
+    episode = db.query(Episode).filter(Episode.id == episode_id).first()
+    if not episode:
+        raise HTTPException(404, "Episode not found")
     post_date = date
     slots = []
     for lang, (_hour, _minute, _tz_name) in POSTING_SLOTS.items():
         utc_dt = compute_utc_slot(post_date, lang)
-        pacific_dt = utc_dt.replace(tzinfo=UTC).astimezone(ZoneInfo(_USER_TZ))
+        pacific_dt = utc_dt.replace(tzinfo=UTC).astimezone(ZoneInfo(USER_TZ))
         p_hour = pacific_dt.hour % 12 or 12
         am_pm = "AM" if pacific_dt.hour < 12 else "PM"
         slots.append(

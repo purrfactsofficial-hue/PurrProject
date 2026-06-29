@@ -43,32 +43,36 @@ function groupByDate(items) {
 
 function PostRow({ post, onAction }) {
   const [rescheduleDate, setRescheduleDate] = useState('')
+  const [actionError, setActionError] = useState(null)
 
   const handleRescheduleClick = async () => {
     if (!rescheduleDate) return
+    setActionError(null)
     try {
       await reschedulePost(post.id, rescheduleDate)
       onAction()
-    } catch {
-      // ignore — queue refresh will show current state
+    } catch (err) {
+      setActionError(err.message ?? 'Action failed')
     }
   }
 
   const handleCancel = async () => {
+    setActionError(null)
     try {
       await cancelPost(post.id)
       onAction()
-    } catch {
-      // ignore
+    } catch (err) {
+      setActionError(err.message ?? 'Cancel failed')
     }
   }
 
   const handleRetry = async () => {
+    setActionError(null)
     try {
       await retryPost(post.id)
       onAction()
-    } catch {
-      // ignore
+    } catch (err) {
+      setActionError(err.message ?? 'Retry failed')
     }
   }
 
@@ -113,6 +117,7 @@ function PostRow({ post, onAction }) {
             </>
           )}
         </div>
+        {actionError && <div className="row-error">{actionError}</div>}
       </td>
     </tr>
   )

@@ -24,3 +24,5 @@ POSTING_SLOTS: dict[str, tuple[int, int, str]] = {
     "zh": (20, 0, "Asia/Hong_Kong"),
     "fr": (20, 0, "Europe/Paris"),
 }
+
+USER_TZ: str = "America/Los_Angeles"

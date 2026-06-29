@@ -22,6 +22,9 @@ def check_and_post(engine=None, dev_mode=None) -> None:
 
     _engine = engine or default_engine
     _dev_mode = dev_mode if dev_mode is not None else settings.dev_mode
+    if not _dev_mode:
+        return  # Phase 4 will add real publishing here
+
     now_utc = datetime.now(UTC).replace(tzinfo=None)
 
     with Session(_engine) as db:
@@ -38,9 +41,8 @@ def check_and_post(engine=None, dev_mode=None) -> None:
         db.commit()
 
         for post in due:
-            if _dev_mode:
-                post.status = "published"
-                post.platform_post_id = f"dev-{post.id}-{int(now_utc.timestamp())}"
+            post.status = "published"
+            post.platform_post_id = f"dev-{post.id}-{int(now_utc.timestamp())}"
         db.commit()
 
 
