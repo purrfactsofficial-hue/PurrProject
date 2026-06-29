@@ -41,7 +41,7 @@ fi
 
 if [ -f "$ROOT/node_modules/.bin/markdownlint-cli2" ]; then
   echo "==> Markdown: markdownlint-cli2"
-  (cd "$ROOT" && node_modules/.bin/markdownlint-cli2 "**/*.md") || {
+  (cd "$ROOT" && node_modules/.bin/markdownlint-cli2 "**/*.md" "!backend/venv/**") || {
     echo "  Fix: npm run lint:md:fix"
     exit 1
   }
