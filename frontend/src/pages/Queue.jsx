@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
-import { cancelPost, getQueue, reschedulePost, retryPost } from '../api.js'
+import { cancelPost, getQueue, publishNow, reschedulePost, retryPost } from '../api.js'
 import './Queue.css'
 
 const STATUS_FILTERS = ['all', 'scheduled', 'publishing', 'published', 'failed', 'cancelled']
@@ -76,6 +76,16 @@ function PostRow({ post, onAction }) {
     }
   }
 
+  const handlePublishNow = async () => {
+    setActionError(null)
+    try {
+      await publishNow(post.id)
+      onAction()
+    } catch (err) {
+      setActionError(err.message ?? 'Publish failed')
+    }
+  }
+
   return (
     <tr>
       <td>
@@ -90,6 +100,11 @@ function PostRow({ post, onAction }) {
       </td>
       <td>
         <div className="row-actions">
+          {(post.status === 'scheduled' || post.status === 'failed') && (
+            <button className="action-btn" onClick={handlePublishNow}>
+              Publish now
+            </button>
+          )}
           {post.status === 'failed' && (
             <button className="action-btn" onClick={handleRetry}>
               Retry

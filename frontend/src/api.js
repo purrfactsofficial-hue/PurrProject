@@ -94,3 +94,7 @@ export function rescheduleEpisode(episodeId, date) {
 export function retryPost(postId) {
   return post(`/schedule/${postId}/retry`)
 }
+
+export function publishNow(postId) {
+  return post(`/schedule/${postId}/publish`)
+}

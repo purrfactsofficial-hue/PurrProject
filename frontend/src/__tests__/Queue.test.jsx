@@ -55,6 +55,7 @@ describe('Queue', () => {
     api.getQueue.mockResolvedValue({ items: [POST_SCHEDULED, POST_FAILED, POST_PUBLISHED] })
     api.cancelPost.mockResolvedValue({ status: 'cancelled' })
     api.retryPost.mockResolvedValue({ status: 'scheduled' })
+    api.publishNow.mockResolvedValue({ status: 'publishing' })
     api.reschedulePost.mockResolvedValue({
       ...POST_SCHEDULED,
       scheduled_for: '2025-08-02T00:00:00Z',
@@ -170,6 +171,37 @@ describe('Queue', () => {
     await waitFor(() =>
       expect(api.reschedulePost).toHaveBeenCalledWith(POST_SCHEDULED.id, '2025-08-01')
     )
+  })
+
+  // ── publish now ────────────────────────────────────────────────────────────
+
+  it('shows Publish now button for scheduled posts', async () => {
+    api.getQueue.mockResolvedValue({ items: [POST_SCHEDULED] })
+    renderQueue()
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /publish now/i })).toBeInTheDocument()
+    )
+  })
+
+  it('shows Publish now button for failed posts', async () => {
+    api.getQueue.mockResolvedValue({ items: [POST_FAILED] })
+    renderQueue()
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /publish now/i })).toBeInTheDocument()
+    )
+  })
+
+  it('Publish now calls publishNow and re-fetches queue', async () => {
+    const user = userEvent.setup()
+    api.getQueue.mockResolvedValueOnce({ items: [POST_SCHEDULED] })
+    api.getQueue.mockResolvedValue({ items: [] })
+    renderQueue()
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /publish now/i })).toBeInTheDocument()
+    )
+    await user.click(screen.getByRole('button', { name: /publish now/i }))
+    await waitFor(() => expect(api.publishNow).toHaveBeenCalledWith(POST_SCHEDULED.id))
+    await waitFor(() => expect(api.getQueue).toHaveBeenCalledTimes(2))
   })
 
   // ── auto-refresh ───────────────────────────────────────────────────────────
