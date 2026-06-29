@@ -37,8 +37,9 @@ describe('App routing', () => {
     // Episode page calls getVideo + getCaptions.
     api.getVideo.mockResolvedValue(episode)
     api.getCaptions.mockResolvedValue([])
-    // Queue page calls getQueue on mount.
+    // Queue page calls getQueue and getHealth on mount.
     api.getQueue.mockResolvedValue({ items: [] })
+    api.getHealth.mockResolvedValue({ channels: [] })
   })
 
   // ─── nav ──────────────────────────────────────────────────────────────────────

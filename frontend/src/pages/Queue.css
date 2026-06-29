@@ -191,3 +191,29 @@
   color: var(--ink-soft);
   font-size: 15px;
 }
+
+.health-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.health-chip {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: default;
+}
+.health-ok {
+  background: #d4f4dd;
+  color: #1a6b2e;
+}
+.health-warn {
+  background: #fff3cd;
+  color: #856404;
+}
+.health-err {
+  background: #f8d7da;
+  color: #842029;
+}

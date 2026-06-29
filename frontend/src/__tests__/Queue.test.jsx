@@ -60,6 +60,7 @@ describe('Queue', () => {
       ...POST_SCHEDULED,
       scheduled_for: '2025-08-02T00:00:00Z',
     })
+    api.getHealth.mockResolvedValue({ channels: [] })
   })
 
   afterEach(() => {
@@ -202,6 +203,29 @@ describe('Queue', () => {
     await user.click(screen.getByRole('button', { name: /publish now/i }))
     await waitFor(() => expect(api.publishNow).toHaveBeenCalledWith(POST_SCHEDULED.id))
     await waitFor(() => expect(api.getQueue).toHaveBeenCalledTimes(2))
+  })
+
+  // ── health chips ──────────────────────────────────────────────────────────
+
+  const HEALTH_OK = {
+    channels: [
+      { lang: 'en', platform: 'youtube', status: 'ok', detail: '' },
+      { lang: 'en', platform: 'tiktok', status: 'warning', detail: 'Cookie 25 days old' },
+      { lang: 'en', platform: 'instagram', status: 'error', detail: 'Token not configured' },
+    ],
+  }
+
+  it('renders health chips for each channel', async () => {
+    api.getHealth.mockResolvedValue(HEALTH_OK)
+    renderQueue()
+    await waitFor(() => expect(api.getHealth).toHaveBeenCalled())
+    await waitFor(() => expect(screen.getByTitle(/en\/youtube/i)).toBeInTheDocument())
+  })
+
+  it('shows warning detail on hover title', async () => {
+    api.getHealth.mockResolvedValue(HEALTH_OK)
+    renderQueue()
+    await waitFor(() => expect(screen.getByTitle('Cookie 25 days old')).toBeInTheDocument())
   })
 
   // ── auto-refresh ───────────────────────────────────────────────────────────

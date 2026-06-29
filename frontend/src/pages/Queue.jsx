@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
-import { cancelPost, getQueue, publishNow, reschedulePost, retryPost } from '../api.js'
+import { cancelPost, getHealth, getQueue, publishNow, reschedulePost, retryPost } from '../api.js'
 import './Queue.css'
 
 const STATUS_FILTERS = ['all', 'scheduled', 'publishing', 'published', 'failed', 'cancelled']
@@ -138,10 +138,30 @@ function PostRow({ post, onAction }) {
   )
 }
 
+const HEALTH_CLASS = { ok: 'health-ok', warning: 'health-warn', error: 'health-err' }
+
+function HealthChips({ channels }) {
+  if (!channels.length) return null
+  return (
+    <div className="health-bar">
+      {channels.map((ch) => (
+        <span
+          key={`${ch.lang}-${ch.platform}`}
+          className={`health-chip ${HEALTH_CLASS[ch.status] ?? ''}`}
+          title={ch.detail || `${ch.lang}/${ch.platform}`}
+        >
+          {ch.lang}/{ch.platform[0]}
+        </span>
+      ))}
+    </div>
+  )
+}
+
 export default function Queue() {
   const [items, setItems] = useState([])
   const [activeFilter, setActiveFilter] = useState('all')
   const [loading, setLoading] = useState(false)
+  const [health, setHealth] = useState([])
   const intervalRef = useRef(null)
 
   const load = useCallback(async () => {
@@ -161,6 +181,12 @@ export default function Queue() {
     intervalRef.current = setInterval(load, 30000)
     return () => clearInterval(intervalRef.current)
   }, [load])
+
+  useEffect(() => {
+    getHealth()
+      .then((d) => setHealth(d.channels))
+      .catch(() => {})
+  }, [])
 
   const filtered = activeFilter === 'all' ? items : items.filter((i) => i.status === activeFilter)
   const groups = groupByDate(filtered)
@@ -183,6 +209,8 @@ export default function Queue() {
           </button>
         ))}
       </div>
+
+      <HealthChips channels={health} />
 
       {!loading && filtered.length === 0 ? (
         <div className="queue-empty">Queue is empty.</div>

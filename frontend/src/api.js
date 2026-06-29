@@ -98,3 +98,7 @@ export function retryPost(postId) {
 export function publishNow(postId) {
   return post(`/schedule/${postId}/publish`)
 }
+
+export function getHealth() {
+  return request('/schedule/health')
+}
