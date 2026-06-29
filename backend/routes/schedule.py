@@ -172,6 +172,7 @@ def retry_post(post_id: int, db: Session = Depends(get_db)):  # noqa: B008
     if post.status != "failed":
         raise HTTPException(409, f"Only failed posts can be retried (status: {post.status})")
     post.status = "scheduled"
+    post.retry_count = 0
     post.error_message = None
     db.commit()
     return {"status": "scheduled"}

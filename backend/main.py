@@ -8,6 +8,7 @@ from config import settings
 from database import create_tables
 from routes import analytics, captions, schedule, videos
 from routes.media import router as media_router
+from routes.schedule_publish import router as schedule_publish_router
 from scheduler import start_scheduler, stop_scheduler
 
 
@@ -31,6 +32,7 @@ app.add_middleware(
 
 app.include_router(videos.router)
 app.include_router(captions.router)
+app.include_router(schedule_publish_router)
 app.include_router(schedule.router)
 app.include_router(analytics.router)
 app.include_router(media_router)
